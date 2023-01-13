@@ -1,0 +1,10 @@
+{
+    "cSpell.words": [
+        "actix",
+        "conn",
+        "dotenv",
+        "dotenvy",
+        "libpq",
+        "reqwest",
+    ]
+}

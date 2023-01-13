@@ -7,3 +7,17 @@ license = "AGPL-3.0-only"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+actix-tls = "3"
+actix-web = { version = "4", features = ["openssl"] }
+base64 = "0.13.0"
+diesel = { version = "2.0.0", features = ["postgres", "uuid"] }
+dotenvy = "0.15"
+env_logger = "0.9.0"
+log = "0.4"
+openssl = { version = "0.10", features = ["v110"] }
+rand = "0.8.5"
+reqwest = { version = "0.11", features = ["blocking", "json", "rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.85"
+test-case = "2.2.1"
+uuid = { version = "1.1.2", features = ["v4", "serde"] }

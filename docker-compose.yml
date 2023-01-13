@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
+# SPDX-License-Identifier: AGPL-3.0-only
+
+version: "3"
+
+services:
+    key_db:
+        container_name: key_store_db
+        image: postgres:15
+        environment:
+            - POSTGRES_DB=key_store
+            - POSTGRES_USER=db_user
+            - POSTGRES_PASSWORD=db_password
+        ports:
+            # host:container
+            - 10000:5432
+        volumes:
+            - key_store_data:/var/lib/postgresql/data
+
+volumes:
+    key_store_data: null
