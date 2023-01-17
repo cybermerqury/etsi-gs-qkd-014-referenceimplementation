@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 // SPDX-License-Identifier: AGPL-3.0-only
-
+use crate::config::CONFIG;
 use crate::models::connection_info::ConnectionInfo;
 use actix_tls::accept::openssl::TlsStream;
 use actix_web::dev::Extensions;
@@ -13,7 +13,10 @@ use openssl::ssl::{
 };
 use std::any::Any;
 
-pub fn add_cert_info_to_request(connection: &dyn Any, data: &mut Extensions) {
+pub fn add_cert_info_to_request_body(
+    connection: &dyn Any,
+    data: &mut Extensions,
+) {
     let tls_socket = connection
         .downcast_ref::<TlsStream<TcpStream>>()
         .expect("Socket should be of type TLSStream.");
@@ -27,9 +30,9 @@ pub fn add_cert_info_to_request(connection: &dyn Any, data: &mut Extensions) {
 pub fn build_tls_configuration() -> Result<SslAcceptorBuilder, ErrorStack> {
     let mut builder = SslAcceptor::mozilla_modern_v5(SslMethod::tls())?;
 
-    builder.set_ca_file("certs/root.crt")?;
-    builder.set_private_key_file("certs/kme_001.key", SslFiletype::PEM)?;
-    builder.set_certificate_chain_file("certs/kme_001.crt")?;
+    builder.set_ca_file(&CONFIG.root_crt)?;
+    builder.set_private_key_file(&CONFIG.private_key, SslFiletype::PEM)?;
+    builder.set_certificate_chain_file(&CONFIG.public_crt)?;
 
     builder
         .set_verify(SslVerifyMode::PEER | SslVerifyMode::FAIL_IF_NO_PEER_CERT);
