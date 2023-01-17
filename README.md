@@ -200,11 +200,26 @@ To examine the certificate
 openssl x509 -text -in test.crt -noout
 ```
 
-# Sending requests
+# Environment variables
 
-A list of bash scripts that send test requests using `curl` can be found in the
-`bin` folder.
-Each script has comments describing the call's parameters.
+| Variable name                       | Description                           |
+|-------------------------------------|---------------------------------------|
+|ETSI_014_REF_IMPL_IP_ADDR            | Ip address the server will bind to.   |
+|ETSI_014_REF_IMPL_PORT_NUM           | The port number the server listens on.|
+|ETSI_014_REF_IMPL_DB_URL             | Database URL.                         |
+|ETSI_014_REF_IMPL_TLS_ROOT_CRT       | Root CA certificate.                  |
+|ETSI_014_REF_IMPL_TLS_PRIVATE_KEY    | Private key.                          |
+|ETSI_014_REF_IMPL_TLS_CER            | TLS certificate (public key).         |
+|ETSI_014_REF_IMPL_NUM_WORKER_THREADS | Number of threads the server will use.|
+
+# Examples
+
+The `examples` folder contains multiple bash scripts that show the user how to
+launch and interact with the reference implementation.
+The `enc_keys.sh` and `dec_keys.sh` scripts send requests using `curl` to the
+web service.
+The `run_server.sh` script launches a server instance with the required
+environment variables.
 
 # License
 
