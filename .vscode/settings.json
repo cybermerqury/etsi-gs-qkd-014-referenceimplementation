@@ -6,5 +6,6 @@
         "dotenvy",
         "libpq",
         "reqwest",
+        "vars"
     ]
 }
