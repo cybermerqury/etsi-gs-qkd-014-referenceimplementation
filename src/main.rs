@@ -7,6 +7,7 @@ mod common;
 mod config;
 mod converter;
 mod db;
+mod default;
 mod error;
 mod handlers;
 mod models;

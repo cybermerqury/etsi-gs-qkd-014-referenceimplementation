@@ -12,12 +12,12 @@ use serde_json::json;
 use std::collections::HashSet;
 
 use crate::{
-    common::CustomResult, converter, error::Error,
+    common::CustomResult, converter, default::DEFAULT, error::Error,
     models::connection_info::ConnectionInfo, ops,
 };
 
-const DEFAULT_SIZE: i32 = 1024;
-const DEFAULT_NUM_KEYS: i32 = 1;
+// const DEFAULT_SIZE: i32 = 1024;
+// const DEFAULT_NUM_KEYS: i32 = 1;
 
 #[derive(Deserialize, Debug)]
 pub struct RequestParams {
@@ -81,8 +81,8 @@ fn service_request(
     params: &RequestParams,
     slave_sae_id: String,
 ) -> CustomResult {
-    let key_size = params.size.unwrap_or(DEFAULT_SIZE);
-    let num_keys = params.number.unwrap_or(DEFAULT_NUM_KEYS);
+    let key_size = params.size.unwrap_or(DEFAULT.key_size);
+    let num_keys = params.number.unwrap_or(DEFAULT.num_keys);
 
     ops::key::validate_key_size(key_size)?;
     ops::key::validate_num_keys(num_keys)?;
