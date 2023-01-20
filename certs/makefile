@@ -19,7 +19,7 @@ SERIAL_NUM = 1
 
 default: certs
 
-certs: kme_001.pem sae_001.pem sae_002.pem
+certs: kme_001.pem sae_001.pem sae_002.pem sae_003.pem
 
 %.pem: %.crt
 	printf "Generating pem file '%s'...\n" $@
