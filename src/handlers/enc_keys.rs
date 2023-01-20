@@ -16,9 +16,6 @@ use crate::{
     models::connection_info::ConnectionInfo, ops,
 };
 
-// const DEFAULT_SIZE: i32 = 1024;
-// const DEFAULT_NUM_KEYS: i32 = 1;
-
 #[derive(Deserialize, Debug)]
 pub struct RequestParams {
     number: Option<i32>,
