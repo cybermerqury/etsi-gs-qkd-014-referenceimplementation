@@ -26,7 +26,7 @@ fn service_request(
         target_kme_id: String::from(DEFAULT.dst_kme_id),
         master_sae_id: ConnectionInfo::new(request)?.sae_id,
         slave_sae_id,
-        key_size: 0,
+        key_size: DEFAULT.key_size,
         stored_key_count: 0,
         max_key_count: 0,
         max_key_per_request: 0,
