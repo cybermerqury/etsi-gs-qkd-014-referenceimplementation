@@ -10,15 +10,15 @@ use log::error;
 use rand::prelude::*;
 use uuid::Uuid;
 
-pub fn validate_key_size(key_size: i32) -> Result<(), Error> {
-    if key_size <= 0 {
+pub fn validate_key_size(key_size_bits: i32) -> Result<(), Error> {
+    if key_size_bits <= 0 {
         return Err(Error::new(
             StatusCode::BAD_REQUEST,
             "'size' must be greater than zero",
         ));
     }
 
-    if key_size % 8 != 0 {
+    if key_size_bits % 8 != 0 {
         return Err(Error::new(
             StatusCode::BAD_REQUEST,
             "'size' must be divisible by 8",
@@ -40,9 +40,12 @@ pub fn validate_num_keys(num_keys: i32) -> Result<(), Error> {
 }
 
 pub fn generate_random_keys(
-    key_size: i32,
+    key_size_bits: i32,
     num_keys: i32,
 ) -> Result<Vec<Key>, Error> {
+    validate_key_size(key_size_bits)?;
+    validate_num_keys(num_keys)?;
+
     let mut keys: Vec<Key> = Vec::with_capacity(match num_keys.try_into() {
         Ok(size) => size,
         Err(e) => {
@@ -54,28 +57,28 @@ pub fn generate_random_keys(
     for _ in 0..num_keys {
         keys.push(Key {
             id: Uuid::new_v4(),
-            content: generate_random_key(key_size)?,
-            size: key_size,
+            content: generate_random_key(key_size_bits)?,
+            size: key_size_bits,
         });
     }
 
     Ok(keys)
 }
 
-pub fn generate_random_key(key_size: i32) -> Result<String, Error> {
-    let key_data = generate_random_key_bytes(key_size)?;
+fn generate_random_key(key_size_bits: i32) -> Result<String, Error> {
+    let key_data = generate_random_key_bytes(key_size_bits)?;
     Ok(converter::to_base64(&key_data))
 }
 
-fn generate_random_key_bytes(key_size: i32) -> Result<Vec<u8>, Error> {
-    if key_size % 8 != 0 || key_size == 0 {
+fn generate_random_key_bytes(key_size_bits: i32) -> Result<Vec<u8>, Error> {
+    if key_size_bits % 8 != 0 || key_size_bits == 0 {
         return Err(Error::new(
             StatusCode::BAD_REQUEST,
             "Key size should be greater than 0 and divisible by 8.",
         ));
     }
 
-    let key_size_in_bytes: usize = match (key_size / 8).try_into() {
+    let key_size_bytes: usize = match (key_size_bits / 8).try_into() {
         Ok(size) => size,
         Err(e) => {
             error!("Failed to convert size from 'i32' to 'usize: {:?}", e);
@@ -83,7 +86,7 @@ fn generate_random_key_bytes(key_size: i32) -> Result<Vec<u8>, Error> {
         }
     };
 
-    let mut key_material = vec![0; key_size_in_bytes];
+    let mut key_material = vec![0; key_size_bytes];
     thread_rng().fill_bytes(&mut key_material);
     Ok(key_material)
 }
@@ -204,31 +207,41 @@ fn retrieve_key_from_db(
     }
 }
 
-// TODO: Add tests for validate_inputs and generate_random_keys function.
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use test_case::test_case;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+    use test_case::test_case;
 
-//     #[test]
-//     fn test_generated_key_bytes_size() {
-//         let key_size = 80;
+    #[test_case(false, 0; "Zero")]
+    #[test_case(false, -8; "Negative value, divisible by 8")]
+    #[test_case(false, -10; "Negative value, non-divisible by 8")]
+    #[test_case(false, 17; "Positive value, non-divisible by 8")]
+    #[test_case(true, 16; "Positive value, divisible by 8")]
+    fn test_key_size_validation(is_ok: bool, key_size_bits: i32) {
+        assert_eq!(generate_random_keys(key_size_bits, 1).is_ok(), is_ok);
+    }
 
-//         let key = generate_random_key_bytes(key_size).unwrap();
-//         assert_eq!(key.len(), (key_size / 8) as usize);
-//     }
+    #[test_case(false, 0; "Zero")]
+    #[test_case(false, -10; "Negative value")]
+    #[test_case(true, 16; "Positive value")]
+    fn test_num_keys_validation(is_ok: bool, num_keys: i32) {
+        assert_eq!(generate_random_keys(8, num_keys).is_ok(), is_ok);
+    }
 
-//     #[test_case( 100; "Only multiples of 8 are allowed")]
-//     #[test_case( 0  ; "Size of 0 is invalid")]
-//     fn test_size_validation(key_size: i32) {
-//         let result = generate_random_key(key_size);
-//         assert!(result.is_err());
-//         assert_eq!(result.err().unwrap().kind(), ErrorKind::InvalidInput);
-//     }
+    #[test]
+    fn test_random_key_generation() {
+        let key_size_bits: i32 = 16;
+        let num_keys: i32 = 2;
 
-//     #[test]
-//     fn test_base_64_generation() {
-//         let key: Vec<u8> = vec![65; 4];
-//         assert_eq!(convert_to_base64(&key), "QUFBQQ==");
-//     }
-// }
+        let result = generate_random_keys(key_size_bits, num_keys);
+        assert!(result.is_ok());
+        let key_container = result.unwrap();
+
+        assert_eq!(key_container.len(), usize::try_from(num_keys).unwrap());
+        for key in key_container {
+            assert_eq!(key.size, key_size_bits);
+            assert_eq!(key.content.len(), 4);
+        }
+    }
+}
