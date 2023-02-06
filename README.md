@@ -11,8 +11,8 @@ standard.
 ## Required OS packages
 
 The server requires the following packages to be installed:
-    * pkg-config
-    * libssl-dev
+* pkg-config
+* libssl-dev
 
 On Ubuntu, these can be installed using
 ```bash
