@@ -1,3 +1,5 @@
+![build workflow](https://github.com/cybermerqury/etsi-gs-qkd-014-referenceimplementation/actions/workflows/build.yml/badge.svg)
+
 # Description
 
 This project provides a reference implementation to the
