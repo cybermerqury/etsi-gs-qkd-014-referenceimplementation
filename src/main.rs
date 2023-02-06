@@ -7,6 +7,7 @@ mod common;
 mod config;
 mod converter;
 mod db;
+mod default;
 mod error;
 mod handlers;
 mod models;
@@ -35,6 +36,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .wrap(Logger::default())
+            // status
+            .service(handlers::status::get)
             // enc_keys
             .service(handlers::enc_keys::get)
             .service(handlers::enc_keys::post)

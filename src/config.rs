@@ -86,12 +86,12 @@ mod tests {
     fn test_loading_valid_config_from_env_vars() {
         temp_env::with_vars(
             vec![
-                (ENV_IP_ADDR, Some(IP_ADDR.clone())),
+                (ENV_IP_ADDR, Some(IP_ADDR)),
                 (ENV_PORT_NUM, Some(&PORT_NUM.to_string())),
-                (ENV_DB_URL, Some(DB_URL.clone())),
-                (ENV_TLS_ROOT_CRT, Some(ROOT_CRT.clone())),
-                (ENV_TLS_PRIVATE_KEY, Some(PRIVATE_KEY.clone())),
-                (ENV_TLS_CERT, Some(PUBLIC_CRT.clone())),
+                (ENV_DB_URL, Some(DB_URL)),
+                (ENV_TLS_ROOT_CRT, Some(ROOT_CRT)),
+                (ENV_TLS_PRIVATE_KEY, Some(PRIVATE_KEY)),
+                (ENV_TLS_CERT, Some(PUBLIC_CRT)),
                 (ENV_NUM_WORKER_THREADS, Some(&NUM_WORKERS.to_string())),
             ],
             || {
@@ -112,9 +112,9 @@ mod tests {
     fn test_loading_invalid_config_from_env_vars() {
         temp_env::with_vars(
             vec![
-                (ENV_TLS_ROOT_CRT, Some(ROOT_CRT.clone())),
-                (ENV_TLS_PRIVATE_KEY, Some(PRIVATE_KEY.clone())),
-                (ENV_TLS_CERT, Some(PUBLIC_CRT.clone())),
+                (ENV_TLS_ROOT_CRT, Some(ROOT_CRT)),
+                (ENV_TLS_PRIVATE_KEY, Some(PRIVATE_KEY)),
+                (ENV_TLS_CERT, Some(PUBLIC_CRT)),
                 (ENV_NUM_WORKER_THREADS, Some(&NUM_WORKERS.to_string())),
             ],
             || {
