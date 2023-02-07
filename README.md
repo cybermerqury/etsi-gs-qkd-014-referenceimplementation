@@ -8,6 +8,18 @@ standard.
 
 # Installation
 
+## Reference OS
+
+```
+Ubuntu 22.04.1 LTS
+```
+
+This implementation has been developed and tested on Ubuntu 22.04.1 LTS.
+While no OS specific components are present in this implementation, no
+guarantees are made that it works on other OSs.
+If you encounter issues deploying this implementation on another OS, reach out
+and we will try our best to make it work on your setup.
+
 ## Required OS packages
 
 The server requires the following packages to be installed:
