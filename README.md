@@ -243,3 +243,9 @@ This project is licensed under the
 [GNU Affero General Public License v3.0 only](https://www.gnu.org/licenses/agpl-3.0.txt).
 If you would like to use this product under a different license, kindly contact
 us on [info@merqury.eu](mailto:info@merqury.eu).
+
+# Acknowledgements
+
+This software has been developed in the project EQUO (European QUantum
+ecOsystems) which is funded by the European Commission in the Digital Europe
+Programme under the grant agreement No 101091561.
