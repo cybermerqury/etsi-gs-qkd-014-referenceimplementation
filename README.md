@@ -246,6 +246,8 @@ us on [info@merqury.eu](mailto:info@merqury.eu).
 
 # Acknowledgements
 
-This software has been developed in the project EQUO (European QUantum
+This software has been developed in the projects EQUO (European QUantum
 ecOsystems) which is funded by the European Commission in the Digital Europe
-Programme under the grant agreement No 101091561.
+Programme under the grant agreement No 101091561 and PRISM (Physical Security
+for Public Infrastructure in Malta) which is co-funded by the European Union
+under the Digital Europe Programme grant agreement number 101111875.
