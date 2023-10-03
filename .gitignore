@@ -1,5 +1,2 @@
 # Compiled binaries
 /target
-
-# User specific
-.env
