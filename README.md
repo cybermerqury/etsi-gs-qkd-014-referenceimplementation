@@ -56,6 +56,18 @@ diesel 2.0.0
 
 # Set up
 
+All environment variables required are set the `.env` file
+
+## Start database
+
+Run
+
+```bash
+make db_start
+```
+
+This will create and launch a docker container running a postgres database running at `DATABASE_URL`
+
 ## Diesel migrations
 
 To run the diesel migration SQL scripts and set-up the database, run the
