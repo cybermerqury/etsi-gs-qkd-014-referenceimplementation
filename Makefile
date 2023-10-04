@@ -90,7 +90,7 @@ post_dec_key:
 	CERTS_DIR=$(CERTS_DIR) \
 	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
 	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
-	./examples/dec_keys.sh POST $(KEY)
+	./examples/dec_keys.sh POST $(KEYS)
 run_tests:
 	@cargo test
 

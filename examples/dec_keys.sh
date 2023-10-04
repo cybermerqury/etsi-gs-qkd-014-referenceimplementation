@@ -49,20 +49,19 @@ elif [ "$1" = "POST" ]; then
     # Parameter description:
     #
     #   key_IDs: [Optional] A list of key_IDs to retrieve.
-
+    shift;
+    KEYS=()
+    for K in "$@"; do
+        KEYS+=('{ "key_ID": "'$K'" }')
+    done;
+    JSON='{"key_IDs": [ '$(IFS=','; echo "${KEYS[*]}")" ]}";
     curl                                          \
-        -i                                        \
         --tlsv1.3                                 \
         --cacert "${CERTS_DIR}"/root.crt          \
         --key "${CERTS_DIR}"/sae_002.key          \
         --cert "${CERTS_DIR}"/sae_002.crt         \
         --header "Content-Type: application/json" \
-        --data-raw '{
-            "key_IDs": [
-                {
-                    "key_ID": "'"${2}"'"
-                }
-            ]}'                                   \
+        --data-raw "${JSON}"                      \
         "https://${ADDR}/sae_001/dec_keys"
 else
     echo "The method to use must be given as a command line parameter."
