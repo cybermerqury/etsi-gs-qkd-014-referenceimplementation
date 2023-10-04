@@ -3,7 +3,7 @@
 
 include ./.env
 
-.PHONY: db_container db_start db_stop db_clean_container db_clean_container_and_data build build_release run_tests run_server clean
+.PHONY: db_container db_start db_stop db_migration db_clean_container db_clean_container_and_data build build_release run_tests run_server clean
 
 CERTS_DIR?=$(abspath ./certs)
 
@@ -12,6 +12,10 @@ db_container:
 
 db_start: db_container
 	docker-compose start
+
+db_migration:
+	DATABASE_URL=$(DATABASE_URL) \
+	diesel migration run
 
 db_stop:
 	docker-compose stop

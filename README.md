@@ -73,7 +73,7 @@ This will create and launch a docker container running a postgres database runni
 To run the diesel migration SQL scripts and set-up the database, run the
 following command
 ```bash
-diesel migration run
+make db_migration
 ```
 This command will execute the `up.sql` scripts in the `migrations` folder that
 have not yet been executed on the database.
