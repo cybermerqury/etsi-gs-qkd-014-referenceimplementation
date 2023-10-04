@@ -13,7 +13,7 @@ services:
             - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
         ports:
             # host:container
-            - ${DATABASE_PORT}:5432
+            - ${DATABASE_HOST}:${DATABASE_PORT}:5432
         volumes:
             - key_store_data:/var/lib/postgresql/data
 
