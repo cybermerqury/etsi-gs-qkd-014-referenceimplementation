@@ -56,8 +56,6 @@ diesel 2.0.0
 
 # Set up
 
-All environment variables required are set the `.env` file
-
 ## Start database
 
 Run
@@ -246,6 +244,37 @@ The `enc_keys.sh` and `dec_keys.sh` scripts send requests using `curl` to the
 web service.
 The `run_server.sh` script launches a server instance with the required
 environment variables.
+
+the Makefile allows the user to run these scripts in a coordinated way.
+
+```bash
+make run_server
+```
+
+Runs the server using the same database created with `make db_start`
+
+```bash
+make get_enc_key
+```
+retrieves an encryption key
+
+```bash
+make post_enc_key
+```
+
+retrieves 3 encryption keys
+
+```bash
+make get_dec_key KEY=XXX
+```
+
+retrieves the decryption key with key-id XXX
+
+```bash
+make post_get_key KEYS='XXX YYY ZZZ ...'
+```
+
+retrieves the decryption keys with IDs XXX, YYY, ZZZ and so on
 
 # License
 
