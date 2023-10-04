@@ -3,7 +3,7 @@
 
 # include ./.env
 
-DATABASE_PORT?=10001
+DATABASE_PORT?=10000
 DATABASE_HOST?=127.0.0.1
 DATABASE_USER?=db_user
 DATABASE_PASSWORD?=db_password
@@ -68,6 +68,29 @@ run_server:
 	ETSI_014_REF_IMPL_DB_URL=$(DATABASE_URL) \
 	./examples/run_server.sh
 
+get_enc_key:
+	CERTS_DIR=$(CERTS_DIR) \
+	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
+	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
+	./examples/enc_keys.sh GET
+
+post_enc_key:
+	CERTS_DIR=$(CERTS_DIR) \
+	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
+	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
+	./examples/enc_keys.sh POST
+
+get_dec_key:
+	CERTS_DIR=$(CERTS_DIR) \
+	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
+	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
+	./examples/dec_keys.sh GET $(KEY)
+
+post_dec_key:
+	CERTS_DIR=$(CERTS_DIR) \
+	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
+	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
+	./examples/dec_keys.sh POST $(KEY)
 run_tests:
 	@cargo test
 
