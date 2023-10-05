@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# include ./.env
-
 DATABASE_PORT?=10000
 DATABASE_HOST?=127.0.0.1
 DATABASE_USER?=db_user
@@ -11,7 +9,8 @@ DATABASE_URL?=postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:
 ETSI_014_REF_IMPL_PORT_NUM?=8443
 ETSI_014_REF_IMPL_IP_ADDR?=${DATABASE_HOST}
 ETSI_014_REF_IMPL_NUM_WORKER_THREADS?=2
-CERTS_DIR?=$(abspath ./certs)
+CURDIR=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+CERTS_DIR?=$(CURDIR)certs
 
 .PHONY:
 	db_container
@@ -28,6 +27,7 @@ CERTS_DIR?=$(abspath ./certs)
 
 
 db_container:
+	cd $(CURDIR) && \
 	DATABASE_HOST=$(DATABASE_HOST) \
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
@@ -35,6 +35,7 @@ db_container:
 	docker-compose up --no-start
 
 db_start: db_container
+	cd $(CURDIR) && \
 	DATABASE_HOST=$(DATABASE_HOST) \
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
@@ -42,25 +43,40 @@ db_start: db_container
 	docker-compose start
 
 db_migration:
-	DATABASE_URL=$(DATABASE_URL) \
-	diesel migration run
+	cd $(CURDIR) && diesel migration run --database-url $(DATABASE_URL)
 
 db_stop:
+	cd $(CURDIR) && \
+	DATABASE_HOST=$(DATABASE_HOST) \
+	DATABASE_PORT=$(DATABASE_PORT) \
+	DATABASE_USER=$(DATABASE_USER) \
+	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
 	docker-compose stop
 
 db_clean_container:
+	cd $(CURDIR) && \
+	DATABASE_HOST=$(DATABASE_HOST) \
+	DATABASE_PORT=$(DATABASE_PORT) \
+	DATABASE_USER=$(DATABASE_USER) \
+	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
 	docker-compose down
 
 db_clean_container_and_data:
+	cd $(CURDIR) && \
+	DATABASE_HOST=$(DATABASE_HOST) \
+	DATABASE_PORT=$(DATABASE_PORT) \
+	DATABASE_USER=$(DATABASE_USER) \
+	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
 	docker-compose down -v --rmi local
 
 build:
-	@cargo build --workspace
+	@cd $(CURDIR) && cargo build --workspace
 
 build_release:
-	@cargo build --release --workspace
+	@cd $(CURDIR) && cargo build --release --workspace
 
 run_server:
+	cd $(CURDIR) &&        \
 	CERTS_DIR=$(CERTS_DIR) \
 	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
 	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
@@ -69,30 +85,34 @@ run_server:
 	./examples/run_server.sh
 
 get_enc_key:
+	cd $(CURDIR) && \
 	CERTS_DIR=$(CERTS_DIR) \
 	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
 	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
 	./examples/enc_keys.sh GET
 
 post_enc_key:
+	cd $(CURDIR) && \
 	CERTS_DIR=$(CERTS_DIR) \
 	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
 	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
-	./examples/enc_keys.sh POST
+ 	./examples/enc_keys.sh POST
 
 get_dec_key:
+	cd $(CURDIR) && \
 	CERTS_DIR=$(CERTS_DIR) \
 	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
 	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
 	./examples/dec_keys.sh GET $(KEY)
 
 post_dec_key:
+	cd $(CURDIR) && \
 	CERTS_DIR=$(CERTS_DIR) \
 	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
 	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
 	./examples/dec_keys.sh POST $(KEYS)
 run_tests:
-	@cargo test
+	@cd $(CURDIR) && cargo test
 
 clean:
-	@cargo clean
+	@cd $(CURDIR) && cargo clean
