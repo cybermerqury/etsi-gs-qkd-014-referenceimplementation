@@ -9,11 +9,11 @@ services:
         image: postgres:15
         environment:
             - POSTGRES_DB=key_store
-            - POSTGRES_USER=db_user
-            - POSTGRES_PASSWORD=db_password
+            - POSTGRES_USER=${DATABASE_USER}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
         ports:
             # host:container
-            - 10000:5432
+            - ${DATABASE_HOST}:${DATABASE_PORT}:5432
         volumes:
             - key_store_data:/var/lib/postgresql/data
 

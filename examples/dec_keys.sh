@@ -2,8 +2,9 @@
 # SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-script_dir="$( cd "$(dirname "$0")" || exit 1; pwd -P )"
-certs_dir="${script_dir}/../certs"
+
+
+ADDR=${ETSI_014_REF_IMPL_IP_ADDR}:${ETSI_014_REF_IMPL_PORT_NUM}/api/v1/keys
 
 if [ -z "$2" ]; then
     echo "No key id supplied. The key id is required as " \
@@ -29,10 +30,10 @@ if [ "$1" = "GET" ]; then
     curl                                  \
         -i                                \
         --tlsv1.3                         \
-        --cacert "${certs_dir}"/root.crt  \
-        --key "${certs_dir}"/sae_002.key  \
-        --cert "${certs_dir}"/sae_002.crt \
-        "https://127.0.0.1:8443/api/v1/keys/sae_001/dec_keys?key_ID=${2}"
+        --cacert "${CERTS_DIR}"/root.crt  \
+        --key "${CERTS_DIR}"/sae_002.key  \
+        --cert "${CERTS_DIR}"/sae_002.crt \
+        "https://${ADDR}/sae_001/dec_keys?key_ID=${2}"
 elif [ "$1" = "POST" ]; then
     # Description:
     #
@@ -48,21 +49,20 @@ elif [ "$1" = "POST" ]; then
     # Parameter description:
     #
     #   key_IDs: [Optional] A list of key_IDs to retrieve.
-
+    shift;
+    KEYS=()
+    for K in "$@"; do
+        KEYS+=('{ "key_ID": "'$K'" }')
+    done;
+    JSON='{"key_IDs": [ '$(IFS=','; echo "${KEYS[*]}")" ]}";
     curl                                          \
-        -i                                        \
         --tlsv1.3                                 \
-        --cacert "${certs_dir}"/root.crt          \
-        --key "${certs_dir}"/sae_002.key          \
-        --cert "${certs_dir}"/sae_002.crt         \
+        --cacert "${CERTS_DIR}"/root.crt          \
+        --key "${CERTS_DIR}"/sae_002.key          \
+        --cert "${CERTS_DIR}"/sae_002.crt         \
         --header "Content-Type: application/json" \
-        --data-raw '{
-            "key_IDs": [
-                {
-                    "key_ID": "'"${2}"'"
-                }
-            ]}'                                   \
-        "https://127.0.0.1:8443/api/v1/keys/sae_001/dec_keys"
+        --data-raw "${JSON}"                      \
+        "https://${ADDR}/sae_001/dec_keys"
 else
     echo "The method to use must be given as a command line parameter."
     echo "Supported parameters are 'GET' or 'POST'."

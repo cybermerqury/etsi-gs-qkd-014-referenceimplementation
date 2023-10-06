@@ -5,6 +5,7 @@ use crate::error::Error;
 use actix_web::http::StatusCode;
 use log::error;
 use serde::Deserialize;
+use base64::Engine;
 
 pub fn to_json<'a, T>(json_text: &'a str) -> Result<T, Error>
 where
@@ -40,5 +41,5 @@ pub fn to_uuid(text: &str) -> Result<uuid::Uuid, Error> {
 }
 
 pub fn to_base64(key: &[u8]) -> String {
-    base64::encode_config(key, base64::STANDARD)
+    base64::engine::general_purpose::STANDARD.encode(key)
 }
