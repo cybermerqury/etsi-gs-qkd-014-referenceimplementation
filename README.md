@@ -64,15 +64,17 @@ Run
 make db_start
 ```
 
-This will create and launch a docker container running a postgres database running at `DATABASE_URL`
+This will create and launch a docker container running a postgres database running at `DATABASE_URL`.
 
 ## Diesel migrations
 
 To run the diesel migration SQL scripts and set-up the database, run the
-following command
+following command:
+
 ```bash
 make db_migration
 ```
+
 This command will execute the `up.sql` scripts in the `migrations` folder that
 have not yet been executed on the database.
 
@@ -245,36 +247,36 @@ web service.
 The `run_server.sh` script launches a server instance with the required
 environment variables.
 
-the Makefile allows the user to run these scripts in a coordinated way.
+The Makefile allows the user to run these scripts in a coordinated way.
 
 ```bash
 make run_server
 ```
 
-Runs the server using the same database created with `make db_start`
+Runs the server using the same database created with `make db_start`.
 
 ```bash
 make get_enc_key
 ```
-retrieves an encryption key
+Retrieves an encryption key.
 
 ```bash
 make post_enc_key
 ```
 
-retrieves 3 encryption keys
+Retrieves 3 encryption keys.
 
 ```bash
 make get_dec_key KEY=XXX
 ```
 
-retrieves the decryption key with key-id XXX
+Retrieves the decryption key with key-id `XXX`.
 
 ```bash
 make post_get_key KEYS='XXX YYY ZZZ ...'
 ```
 
-retrieves the decryption keys with IDs XXX, YYY, ZZZ and so on
+Retrieves the decryption keys with IDs `XXX`, `YYY`, `ZZZ` and so on.
 
 # License
 
