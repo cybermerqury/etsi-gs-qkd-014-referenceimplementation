@@ -24,7 +24,7 @@ CERTS_DIR?=$(CURDIR)certs
 	run_tests
 	run_server
 	clean
-
+	build_image
 
 db_container:
 	cd $(CURDIR) && \
@@ -111,8 +111,12 @@ post_dec_key:
 	ETSI_014_REF_IMPL_PORT_NUM=$(ETSI_014_REF_IMPL_PORT_NUM) \
 	ETSI_014_REF_IMPL_IP_ADDR=$(ETSI_014_REF_IMPL_IP_ADDR) \
 	./examples/dec_keys.sh POST $(KEYS)
+
 run_tests:
 	@cd $(CURDIR) && cargo test
 
 clean:
 	@cd $(CURDIR) && cargo clean
+
+build_image:
+	docker build -t merqury/etsi_014_ref_impl -f Dockerfile .
