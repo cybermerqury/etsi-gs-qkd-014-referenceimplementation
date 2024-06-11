@@ -43,7 +43,7 @@ db_start: db_container
 	docker-compose start
 
 db_migration:
-	cd $(CURDIR) && diesel migration run --database-url $(DATABASE_URL)
+	cd $(CURDIR) && sqlx migrate run --database-url $(DATABASE_URL)
 
 db_stop:
 	cd $(CURDIR) && \

@@ -3,13 +3,12 @@
 
 use crate::config::CONFIG;
 use crate::error::Error;
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
 use log::error;
+use sqlx::PgPool;
 
-pub fn establish_connection() -> Result<PgConnection, Error> {
-    match PgConnection::establish(&CONFIG.db_url) {
-        Ok(conn) => Ok(conn),
+pub async fn establish_connection() -> Result<PgPool, Error> {
+    match PgPool::connect(&CONFIG.db_url).await {
+        Ok(pool) => Ok(pool),
         Err(e) => {
             error!("Failed to connect to the database. Error: {:?}", e);
             Err(Error::internal_server_error())

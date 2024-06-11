@@ -1,13 +1,9 @@
 // SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 // SPDX-License-Identifier: AGPL-3.0-only
 
-use crate::schema::keys;
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Insertable)]
-#[diesel(table_name = keys)]
 pub struct NewKey {
     pub id: Uuid,
     pub master_sae_id: String,
@@ -16,7 +12,7 @@ pub struct NewKey {
     pub content: String,
 }
 
-#[derive(Queryable, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
 pub struct Key {
     #[serde(rename = "key_ID")]
     pub id: Uuid,

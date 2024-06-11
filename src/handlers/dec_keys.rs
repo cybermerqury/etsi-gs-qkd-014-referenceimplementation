@@ -38,7 +38,7 @@ pub async fn get(
             key_ids: vec![request_params.into_inner()],
         },
         master_sae_id.to_string(),
-    )
+    ).await
 }
 
 #[post("/api/v1/keys/{master_sae_id}/dec_keys")]
@@ -55,10 +55,10 @@ pub async fn post(
         }
     };
 
-    service_request(&request, &params, master_sae_id.to_string())
+    service_request(&request, &params, master_sae_id.to_string()).await
 }
 
-fn service_request(
+async fn service_request(
     request: &HttpRequest,
     params: &RequestParams,
     master_sae_id: String,
@@ -69,7 +69,7 @@ fn service_request(
     validate_sae_ids(&master_sae_id, slave_sae_id)?;
 
     let keys =
-        get_multiple_keys(&requested_key_ids, &master_sae_id, slave_sae_id)?;
+        get_multiple_keys(&requested_key_ids, &master_sae_id, slave_sae_id).await?;
 
     Ok(HttpResponse::Ok().json(json!({ "keys": keys })))
 }
