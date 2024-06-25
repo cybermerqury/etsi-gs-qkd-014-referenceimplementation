@@ -70,10 +70,10 @@ db_clean_container_and_data:
 	docker-compose down -v --rmi local
 
 build:
-	@cd $(CURDIR) && cargo build --workspace
+	@cd $(CURDIR) && SQLX_OFFLINE=true cargo build --workspace
 
 build_release:
-	@cd $(CURDIR) && cargo build --release --workspace
+	@cd $(CURDIR) && SQLX_OFFLINE=true cargo build --release --workspace
 
 run_server:
 	cd $(CURDIR) &&        \

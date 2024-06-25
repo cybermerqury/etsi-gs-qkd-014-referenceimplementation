@@ -5,9 +5,9 @@ use crate::models::key::NewKey;
 use crate::{converter, db};
 use crate::{error::Error, models::key::Key};
 use actix_web::http::StatusCode;
-use sqlx::PgPool;
 use log::error;
 use rand::prelude::*;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub fn validate_key_size(key_size_bits: i32) -> Result<(), Error> {
@@ -115,9 +115,9 @@ pub async fn save_keys(
 
     let pool = &db::establish_connection().await?;
     let mut num_inserted_rows: u64 = 0;
-    for key in keys_to_insert{
-        let result = match sqlx::query!(
-            r#"INSERT INTO keys (id, master_sae_id, slave_sae_id, size, content)VALUES ($1, $2, $3, $4, $5);"#,
+    for key in keys_to_insert {
+        let result = match sqlx::query_file!(
+            "sql/insert_keys.sql",
             key.id,
             key.master_sae_id,
             key.slave_sae_id,
@@ -146,12 +146,10 @@ pub async fn get_multiple_keys(
     let pool = &db::establish_connection().await?;
 
     for key_id in key_ids {
-        result.push(retrieve_key_from_db(
-            key_id,
-            master_sae_id,
-            slave_sae_id,
-            pool,
-        ).await?);
+        result.push(
+            retrieve_key_from_db(key_id, master_sae_id, slave_sae_id, pool)
+                .await?,
+        );
     }
 
     Ok(result)
@@ -163,20 +161,15 @@ async fn retrieve_key_from_db(
     slave_sae_id: &str,
     pool: &PgPool,
 ) -> Result<Key, Error> {
-    let num_keys_with_master_sae_id = match sqlx::query!(
-        r#"SELECT count(*) as "count!"
-        FROM keys
-        WHERE 
-            id = $1 AND
-            master_sae_id = $2 AND
-            active = TRUE
-        ;"#,
+    let num_keys_with_master_sae_id = match sqlx::query_file!(
+        "sql/count_keys.sql",
         key_id,
         master_sae_id,
     )
     .fetch_one(pool)
-    .await{
-        Ok(res) => res,
+    .await
+    {
+        Ok(res) => res.count,
         Err(e) => {
             error!(
                 "Failed to count the number of keys with a specific master_sae_id. Error: {:?}",
@@ -184,39 +177,26 @@ async fn retrieve_key_from_db(
             );
             return Err(Error::internal_server_error());
         }
-    }
-    .count;
+    };
 
-    let retrieval_result = match sqlx::query!(
-        r#"SELECT id, content, size
-        FROM keys
-        WHERE 
-            id = $1 AND
-            master_sae_id = $2 AND
-            slave_sae_id = $3 AND
-            active = TRUE
-        ;"#,
+    let retrieval_result = match sqlx::query_file_as!(
+        Key, "sql/retrieve_key.sql",
         key_id,
         master_sae_id,
         slave_sae_id,
     )
     .fetch_optional(pool)
-    .await{
+    .await
+    {
         Ok(res) => res,
         Err(e) => {
             error!("Failed to retrieve key. Error: {:?}", e);
-            return  Err(Error::internal_server_error());
+            return Err(Error::internal_server_error());
         }
     };
 
     match retrieval_result {
-        Some(retrieved_key) => Ok(
-            Key{
-                id: retrieved_key.id, 
-                content: retrieved_key.content,
-                size: retrieved_key.size,
-            }
-        ),
+        Some(retrieved_key) => Ok(retrieved_key),
         None => {
             if num_keys_with_master_sae_id > 0 {
                 Err(Error::unauthorized())

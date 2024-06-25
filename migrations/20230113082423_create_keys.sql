@@ -16,6 +16,7 @@ CREATE TABLE keys (
     PRIMARY KEY (id, master_sae_id, slave_sae_id)
 );
 
+CREATE INDEX ON keys (id)
 CREATE INDEX ON keys (master_sae_id);
 CREATE INDEX ON keys (slave_sae_id);
 CREATE INDEX ON keys (active);
@@ -26,7 +27,7 @@ $last_modofied_at$
         NEW.last_modified_at = NOW();
         RETURN NEW;
     END;
-$last_modofied_at$ LANGUAGE plpgsql;
+$last_modified_at$ LANGUAGE plpgsql;
 
 CREATE TRIGGER keys_last_modified_at BEFORE INSERT OR UPDATE ON keys
     FOR EACH ROW EXECUTE FUNCTION update_keys_last_modified_at();
