@@ -113,7 +113,7 @@ post_dec_key:
 	./examples/dec_keys.sh POST $(KEYS)
 
 run_tests:
-	@cd $(CURDIR) && cargo test
+	@cd $(CURDIR) && SQLX_OFFLINE=true cargo test
 
 clean:
 	@cd $(CURDIR) && cargo clean
