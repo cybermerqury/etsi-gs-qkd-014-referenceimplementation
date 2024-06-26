@@ -32,26 +32,25 @@ sudo apt install pkg-config libssl-dev
 ```
 ## Database management packages
 
-The [Diesel](https://diesel.rs/) rust library is used to handle database
+The [SQLx](https://docs.rs/sqlx/latest/sqlx/) rust library is used to handle database
 operations, including migrations.
-Diesel has a dependency on the `libpq` library which needs to be installed
-before installing the `diesel_cli` utility.
+SQLx has a dependency on the `libpq` library which needs to be installed
+before installing the `sqlx-cli` utility.
 On Ubuntu, the `libpq` library can be installed using
 ```bash
 sudo apt install libpq-dev
 ```
-To install the diesel command line interface with support for PostgreSQL
-databases only, run the command
+To install the SQLx command line interface, run the command
 ```bash
-cargo install diesel_cli --no-default-features --features postgres
+cargo install sqlx-cli
 ```
 To confirm that installation was successful, run the command
 ```bash
-diesel --version
+sqlx --version
 ```
 The output should be similar to
 ```
-diesel 2.0.0
+sqlx-cli 0.7.4
 ```
 
 # Set up
