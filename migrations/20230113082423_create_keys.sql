@@ -16,13 +16,13 @@ CREATE TABLE keys (
     PRIMARY KEY (id, master_sae_id, slave_sae_id)
 );
 
-CREATE INDEX ON keys (id)
+CREATE INDEX ON keys (id);
 CREATE INDEX ON keys (master_sae_id);
 CREATE INDEX ON keys (slave_sae_id);
 CREATE INDEX ON keys (active);
 
 CREATE FUNCTION update_keys_last_modified_at() RETURNS trigger AS
-$last_modofied_at$
+$last_modified_at$
     BEGIN
         NEW.last_modified_at = NOW();
         RETURN NEW;
