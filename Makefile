@@ -32,7 +32,7 @@ db_container:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose up --no-start
+	docker compose up --no-start
 
 db_start: db_container
 	cd $(CURDIR) && \
@@ -40,7 +40,7 @@ db_start: db_container
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose start
+	docker compose start
 
 db_migration:
 	cd $(CURDIR) && sqlx migrate run --database-url $(DATABASE_URL)
@@ -51,7 +51,7 @@ db_stop:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose stop
+	docker compose stop
 
 db_clean_container:
 	cd $(CURDIR) && \
@@ -59,7 +59,7 @@ db_clean_container:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose down
+	docker compose down
 
 db_clean_container_and_data:
 	cd $(CURDIR) && \
@@ -67,7 +67,7 @@ db_clean_container_and_data:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose down -v --rmi local
+	docker compose down -v --rmi local
 
 build:
 	@cd $(CURDIR) && SQLX_OFFLINE=true cargo build --workspace

@@ -3,9 +3,9 @@
 
 use crate::error::Error;
 use actix_web::http::StatusCode;
+use base64::Engine;
 use log::error;
 use serde::Deserialize;
-use base64::Engine;
 
 pub fn to_json<'a, T>(json_text: &'a str) -> Result<T, Error>
 where

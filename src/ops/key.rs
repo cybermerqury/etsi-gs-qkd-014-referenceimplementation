@@ -123,7 +123,10 @@ pub async fn save_keys(
             key.slave_sae_id,
             key.size,
             key.content,
-        ).execute(pool).await{
+        )
+        .execute(pool)
+        .await
+        {
             Ok(res) => res,
             Err(e) => {
                 error!("Failed to save records to db: {:?}", e);
@@ -180,7 +183,8 @@ async fn retrieve_key_from_db(
     };
 
     let retrieval_result = match sqlx::query_file_as!(
-        Key, "sql/retrieve_key.sql",
+        Key,
+        "sql/retrieve_key.sql",
         key_id,
         master_sae_id,
         slave_sae_id,

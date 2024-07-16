@@ -66,7 +66,7 @@ sqlx-cli 0.7.4
 ## Docker Compose
 The implementation runs on docker compose. To install docker compose run the command
 ```bash
-sudo apt install docker-compose
+sudo apt install docker-compose-v2
 ```
 
 To verify the installation was successful, run
