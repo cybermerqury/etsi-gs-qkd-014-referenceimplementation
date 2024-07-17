@@ -50,7 +50,7 @@ pub async fn get(
             }
         };
 
-    service_request(&request, &params, slave_sae_id.to_string())
+    service_request(&request, &params, slave_sae_id.to_string()).await
 }
 
 #[post("/api/v1/keys/{slave_sae_id}/enc_keys")]
@@ -70,10 +70,10 @@ pub async fn post(
         },
     };
 
-    service_request(&request, &params, slave_sae_id.to_string())
+    service_request(&request, &params, slave_sae_id.to_string()).await
 }
 
-fn service_request(
+async fn service_request(
     request: &HttpRequest,
     params: &RequestParams,
     slave_sae_id: String,
@@ -90,7 +90,7 @@ fn service_request(
 
     let generated_keys = ops::key::generate_random_keys(key_size, num_keys)?;
 
-    ops::key::save_keys(&generated_keys, master_sae_id, &slave_sae_ids)?;
+    ops::key::save_keys(&generated_keys, master_sae_id, &slave_sae_ids).await?;
 
     Ok(HttpResponse::Ok().json(json!({ "keys": generated_keys })))
 }

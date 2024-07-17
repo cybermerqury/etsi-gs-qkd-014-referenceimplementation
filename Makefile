@@ -32,7 +32,7 @@ db_container:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose up --no-start
+	docker compose up --no-start
 
 db_start: db_container
 	cd $(CURDIR) && \
@@ -40,10 +40,10 @@ db_start: db_container
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose start
+	docker compose start
 
 db_migration:
-	cd $(CURDIR) && diesel migration run --database-url $(DATABASE_URL)
+	cd $(CURDIR) && sqlx migrate run --database-url $(DATABASE_URL)
 
 db_stop:
 	cd $(CURDIR) && \
@@ -51,7 +51,7 @@ db_stop:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose stop
+	docker compose stop
 
 db_clean_container:
 	cd $(CURDIR) && \
@@ -59,7 +59,7 @@ db_clean_container:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose down
+	docker compose down
 
 db_clean_container_and_data:
 	cd $(CURDIR) && \
@@ -67,13 +67,13 @@ db_clean_container_and_data:
 	DATABASE_PORT=$(DATABASE_PORT) \
 	DATABASE_USER=$(DATABASE_USER) \
 	DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
-	docker-compose down -v --rmi local
+	docker compose down -v --rmi local
 
 build:
-	@cd $(CURDIR) && cargo build --workspace
+	@cd $(CURDIR) && SQLX_OFFLINE=true cargo build --workspace
 
 build_release:
-	@cd $(CURDIR) && cargo build --release --workspace
+	@cd $(CURDIR) && SQLX_OFFLINE=true cargo build --release --workspace
 
 run_server:
 	cd $(CURDIR) &&        \
@@ -113,7 +113,7 @@ post_dec_key:
 	./examples/dec_keys.sh POST $(KEYS)
 
 run_tests:
-	@cd $(CURDIR) && cargo test
+	@cd $(CURDIR) && SQLX_OFFLINE=true cargo test
 
 clean:
 	@cd $(CURDIR) && cargo clean

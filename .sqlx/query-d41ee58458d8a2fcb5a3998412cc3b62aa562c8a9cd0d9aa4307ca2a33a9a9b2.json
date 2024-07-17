@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT count(*) as \"count!\"\nFROM keys\nWHERE \n    id = $1 AND\n    master_sae_id = $2 AND\n    active = TRUE;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d41ee58458d8a2fcb5a3998412cc3b62aa562c8a9cd0d9aa4307ca2a33a9a9b2"
+}

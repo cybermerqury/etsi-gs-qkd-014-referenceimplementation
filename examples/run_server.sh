@@ -6,4 +6,4 @@ script_dir="$( cd "$(dirname "$0")" || exit 1; pwd -P )"
 ETSI_014_REF_IMPL_TLS_ROOT_CRT=${CERTS_DIR}/root.crt \
 ETSI_014_REF_IMPL_TLS_PRIVATE_KEY=${CERTS_DIR}/kme_001.key \
 ETSI_014_REF_IMPL_TLS_CERT=${CERTS_DIR}/kme_001.crt \
-cargo run
+SQLX_OFFLINE=true cargo run

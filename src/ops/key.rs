@@ -5,9 +5,9 @@ use crate::models::key::NewKey;
 use crate::{converter, db};
 use crate::{error::Error, models::key::Key};
 use actix_web::http::StatusCode;
-use diesel::prelude::*;
 use log::error;
 use rand::prelude::*;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub fn validate_key_size(key_size_bits: i32) -> Result<(), Error> {
@@ -91,13 +91,11 @@ fn generate_random_key_bytes(key_size_bits: i32) -> Result<Vec<u8>, Error> {
     Ok(key_material)
 }
 
-pub fn save_keys(
+pub async fn save_keys(
     keys: &[Key],
     master_sae_id: &str,
     slave_sae_ids: &[String],
 ) -> Result<(), Error> {
-    use crate::schema::keys;
-
     let num_rows_to_insert = keys.len() * slave_sae_ids.len();
 
     let mut keys_to_insert: Vec<NewKey> =
@@ -115,58 +113,66 @@ pub fn save_keys(
         }
     }
 
-    match diesel::insert_into(keys::table)
-        .values(keys_to_insert)
-        .execute(&mut db::establish_connection()?)
-    {
-        Ok(num_inserted_rows) => {
-            assert_eq!(num_rows_to_insert, num_inserted_rows);
-            Ok(())
-        }
-        Err(e) => {
-            error!("Failed to save records to db: {:?}", e);
-            Err(Error::internal_server_error())
-        }
+    let pool = &db::establish_connection().await?;
+    let mut num_inserted_rows: u64 = 0;
+    for key in keys_to_insert {
+        let result = match sqlx::query_file!(
+            "sql/insert_keys.sql",
+            key.id,
+            key.master_sae_id,
+            key.slave_sae_id,
+            key.size,
+            key.content,
+        )
+        .execute(pool)
+        .await
+        {
+            Ok(res) => res,
+            Err(e) => {
+                error!("Failed to save records to db: {:?}", e);
+                return Err(Error::internal_server_error());
+            }
+        };
+        num_inserted_rows += result.rows_affected();
     }
+    assert_eq!(num_rows_to_insert as u64, num_inserted_rows);
+    Ok(())
 }
 
-pub fn get_multiple_keys(
+pub async fn get_multiple_keys(
     key_ids: &[uuid::Uuid],
     master_sae_id: &str,
     slave_sae_id: &str,
 ) -> Result<Vec<Key>, Error> {
     let mut result: Vec<Key> = Vec::new();
 
-    let db_conn = &mut db::establish_connection()?;
+    let pool = &db::establish_connection().await?;
 
     for key_id in key_ids {
-        result.push(retrieve_key_from_db(
-            key_id,
-            master_sae_id,
-            slave_sae_id,
-            db_conn,
-        )?);
+        result.push(
+            retrieve_key_from_db(key_id, master_sae_id, slave_sae_id, pool)
+                .await?,
+        );
     }
 
     Ok(result)
 }
 
-fn retrieve_key_from_db(
+async fn retrieve_key_from_db(
     key_id: &uuid::Uuid,
     master_sae_id: &str,
     slave_sae_id: &str,
-    db_conn: &mut PgConnection,
+    pool: &PgPool,
 ) -> Result<Key, Error> {
-    use crate::schema::keys;
-
-    let num_keys_with_master_sae_id: i64 = match keys::table
-        .filter(keys::id.eq(key_id))
-        .filter(keys::master_sae_id.eq(master_sae_id))
-        .filter(keys::active.eq(true))
-        .count()
-        .get_result(db_conn)
+    let num_keys_with_master_sae_id = match sqlx::query_file!(
+        "sql/count_keys.sql",
+        key_id,
+        master_sae_id,
+    )
+    .fetch_one(pool)
+    .await
     {
-        Ok(res) => res,
+        Ok(res) => res.count,
         Err(e) => {
             error!(
                 "Failed to count the number of keys with a specific master_sae_id. Error: {:?}",
@@ -176,14 +182,15 @@ fn retrieve_key_from_db(
         }
     };
 
-    let retrieval_result: Option<Key> = match keys::table
-        .filter(keys::id.eq(key_id))
-        .filter(keys::master_sae_id.eq(master_sae_id))
-        .filter(keys::slave_sae_id.eq(slave_sae_id))
-        .filter(keys::active.eq(true))
-        .select((keys::id, keys::content, keys::size))
-        .get_result(db_conn)
-        .optional()
+    let retrieval_result = match sqlx::query_file_as!(
+        Key,
+        "sql/retrieve_key.sql",
+        key_id,
+        master_sae_id,
+        slave_sae_id,
+    )
+    .fetch_optional(pool)
+    .await
     {
         Ok(res) => res,
         Err(e) => {

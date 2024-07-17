@@ -12,7 +12,6 @@ mod error;
 mod handlers;
 mod models;
 mod ops;
-mod schema;
 
 use actix_web::{middleware::Logger, App, HttpServer};
 use config::CONFIG;
@@ -22,7 +21,7 @@ use log::info;
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     CONFIG.init();
-    db::establish_connection().expect("Could not connect to database");
+    db::establish_connection().await.expect("Could not connect to database");
 
     info!("Server starting on {}:{}", CONFIG.ip_addr, CONFIG.port_num);
 
