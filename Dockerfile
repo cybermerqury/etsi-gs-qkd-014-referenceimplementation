@@ -14,17 +14,21 @@ RUN apt update     && \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs \
-    | sh -s -- --default-toolchain=1.72.1 -y
+    | sh -s -- --default-toolchain=1.80.1 -y
 
-# Copy source files
+# Mount resources for compilation
 RUN mkdir -p /usr/src/merqury/etsi_014_ref_impl
 WORKDIR /usr/src/merqury/etsi_014_ref_impl
 
-COPY ./Cargo.toml ./Cargo.toml
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./src ./src
-
-RUN ${HOME}/.cargo/bin/cargo build --release
+RUN --mount=type=bind,source=Cargo.toml,target=Cargo.toml \
+    --mount=type=bind,source=Cargo.lock,target=Cargo.lock \
+    --mount=type=bind,source=src,target=src \
+    --mount=type=bind,source=sql,target=sql \
+    --mount=type=bind,source=.sqlx,target=.sqlx \
+    <<EOF
+set -e
+SQLX_OFFLINE=true ${HOME}/.cargo/bin/cargo build --locked --release
+EOF
 
 # Create certificates folder
 RUN mkdir -p /usr/certs
