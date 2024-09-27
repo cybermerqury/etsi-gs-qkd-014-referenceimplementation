@@ -119,4 +119,4 @@ clean:
 	@cd $(CURDIR) && cargo clean
 
 build_image:
-	docker build -t merqury/etsi_014_ref_impl -f Dockerfile .
+	docker build -t merqury/etsi_014_ref_impl:1.1.0 -f Dockerfile .
