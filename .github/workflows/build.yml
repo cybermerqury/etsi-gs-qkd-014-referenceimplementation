@@ -15,7 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check cargo version
-        run: cargo --version
+        run: | 
+          curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
+          cargo --version
       - name: Build
         run: SQLX_OFFLINE=true cargo --locked --release
       - name: Run tests
