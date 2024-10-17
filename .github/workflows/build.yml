@@ -19,7 +19,7 @@ jobs:
           curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
           cargo --version
       - name: Build
-        run: SQLX_OFFLINE=true cargo --locked --release
+        run: SQLX_OFFLINE=true cargo build --locked --release
       - name: Run tests
         run: SQLX_OFFLINE=true cargo test --verbose
       - name: check files
