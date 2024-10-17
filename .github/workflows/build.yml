@@ -17,7 +17,10 @@ jobs:
       - name: Check cargo version
         run: | 
           curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
+          cargo install cargo-audit
           cargo --version
+      - name: Check for vulnerabilities
+        run: cargo audit
       - name: Build
         run: SQLX_OFFLINE=true cargo build --locked --release
       - name: Run tests
