@@ -14,8 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check cargo version
+        run: cargo --version
       - name: Build
-        run: SQLX_OFFLINE=true cargo build --verbose
+        run: SQLX_OFFLINE=true cargo --locked --release
       - name: Run tests
         run: SQLX_OFFLINE=true cargo test --verbose
       - name: check files
