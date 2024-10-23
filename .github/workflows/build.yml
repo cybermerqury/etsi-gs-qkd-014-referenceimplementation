@@ -37,8 +37,8 @@ jobs:
       - name: Build and push image
         run: |
           docker login --username ${{ github.actor }} --password ${{ secrets.IMAGE_SEC }} ghcr.io
-          docker build . --tag ghcr.io/${{ github.actor }}/app:latest
-          docker push ghcr.io/${{ github.actor }}/app:latest
+          docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
+          docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
   # docker-push:
   #   runs-on: ubuntu-latest
   #   if: github.ref == 'refs/heads/main'
