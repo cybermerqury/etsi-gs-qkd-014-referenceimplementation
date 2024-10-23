@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  packages: write  # Grant write permission to publish packages
+  contents: read   # Grant read permission for repository content
+
 env:
   CARGO_TERM_COLOR: always
 
