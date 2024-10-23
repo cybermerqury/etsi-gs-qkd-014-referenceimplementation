@@ -6,9 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
-permissions:
-  packages: write  # Grant write permission to publish packages
-  contents: read   # Grant read permission for repository content
+# permissions:
+#   packages: write  # Grant write permission to publish packages
+#   packages: read
+#   contents: read   # Grant read permission for repository content
 
 env:
   CARGO_TERM_COLOR: always
@@ -35,7 +36,7 @@ jobs:
         run: docker build --check . --file Dockerfile
       - name: Build and push image
         run: |
-          docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+          docker login --username ${{ github.actor }} --password ${{ secrets.IMAGE_SEC }} ghcr.io
           docker build . --tag ghcr.io/${{ github.actor }}/app:latest
           docker push ghcr.io/${{ github.actor }}/app:latest
   # docker-push:
