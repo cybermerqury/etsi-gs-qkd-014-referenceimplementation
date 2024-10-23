@@ -34,7 +34,7 @@ jobs:
       - name: Checking docker file
         run: docker build --check . --file Dockerfile
       - name: Build and push image
-        run:
+        run: |
           docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker build . --tag ghcr.io/${{ github.actor }}/app:latest
           docker push ghcr.io/${{ github.actor }}/app:latest
