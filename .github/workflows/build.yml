@@ -28,8 +28,9 @@ jobs:
       - name: Build
         run: |
           SQLX_OFFLINE=true cargo build --locked --release
-          VERSION=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version')
+          VERSION=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version' | sed 's/"//g')
           echo "Package version: $VERSION"
+          export VERSION=$VERSION
       - name: Run tests
         run: SQLX_OFFLINE=true cargo test
       - name: check files
@@ -42,7 +43,7 @@ jobs:
   #   steps:
       - name: Build and push image
         run: |
-          echo $VERSION
+          echo "Package version: $VERSION"
           docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
           docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
