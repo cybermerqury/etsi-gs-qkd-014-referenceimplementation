@@ -28,9 +28,8 @@ jobs:
       - name: Build
         run: |
           SQLX_OFFLINE=true cargo build --locked --release
-          VERSION1=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version')
-          VERSION2=$(cargo metadata --format-version=1 --no-deps | jq '.packages[] | select(.name == "PACKAGE_NAME") | .version')
-          echo "Package version1: $VERSION1 and version2: $VERSION2"
+          VERSION=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version')
+          echo "Package version: $VERSION"
       - name: Run tests
         run: SQLX_OFFLINE=true cargo test
       - name: check files
@@ -43,25 +42,10 @@ jobs:
   #   steps:
       - name: Build and push image
         run: |
-          echo $CARGO_PKG_VERSION
+          echo $VERSION
           docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
           docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
-  # docker-push:
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-      # - name: Log in to the Container registry
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }} ## This needs a GH token on our environment
-      # - name: Build and push
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     push: true
-      #     tags: user/app:latest 
 # Think about how we need to push tagging
 # If we want automatic tagging
 # Else we trigger it on the git tag push origin
