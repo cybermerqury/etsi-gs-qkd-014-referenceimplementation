@@ -9,7 +9,6 @@ on:
 permissions:
   packages: read
   packages: write
-  packages: delete
 
 env:
   CARGO_TERM_COLOR: always
