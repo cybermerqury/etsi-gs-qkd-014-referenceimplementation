@@ -30,7 +30,7 @@ jobs:
           SQLX_OFFLINE=true cargo build --locked --release
           VERSION=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version' | sed 's/"//g')
           echo "Package version: $VERSION"
-          export VERSION=$VERSION
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
       - name: Run tests
         run: SQLX_OFFLINE=true cargo test
       - name: check files
