@@ -6,10 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# permissions:
-#   packages: write  # Grant write permission to publish packages
-#   packages: read
-#   contents: read   # Grant read permission for repository content
+permissions:
+  packages: read
+  packages: write
+  packages: delete
 
 env:
   CARGO_TERM_COLOR: always
@@ -17,6 +17,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    # if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
       - name: Check cargo version
@@ -24,19 +25,26 @@ jobs:
           curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
           cargo install cargo-audit
           cargo --version
-      # - name: Check for vulnerabilities
-      #   run: cargo audit
+      - name: Check for vulnerabilities
+        run: cargo audit
       - name: Build
-        run: SQLX_OFFLINE=true cargo build --locked --release
+        run: |
+          SQLX_OFFLINE=true cargo build --locked --release
+          echo $CARGO_PKG_VERSION
       - name: Run tests
         run: SQLX_OFFLINE=true cargo test --verbose
       - name: check files
         run: pwd && ls
       - name: Checking docker file
         run: docker build --check . --file Dockerfile
+  # build_main:
+  #   runs-on: ubuntu-24.04
+  #   if: github.ref == 'refs/heads/main'
+  #   steps:
       - name: Build and push image
         run: |
-          docker login --username ${{ github.actor }} --password ${{ secrets.IMAGE_SEC }} ghcr.io
+          echo $CARGO_PKG_VERSION
+          docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
           docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
   # docker-push:
