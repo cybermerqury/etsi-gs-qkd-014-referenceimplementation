@@ -27,7 +27,7 @@ jobs:
       #   run: cargo audit
       - name: Build
         run: |
-          SQLX_OFFLINE=true cargo build --locked --release#
+          SQLX_OFFLINE=true cargo build --locked --release
           let version = env!("CARGO_PKG_VERSION");
           echo "Package version: $version"
       - name: Run tests
