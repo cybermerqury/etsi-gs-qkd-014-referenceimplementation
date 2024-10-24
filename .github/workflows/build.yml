@@ -28,7 +28,7 @@ jobs:
       - name: Build
         run: |
           SQLX_OFFLINE=true cargo build --locked --release
-          echo $CARGO_PKG_VERSION
+          echo "Package version: $CARGO_PKG_VERSION"
       - name: Run tests
         run: SQLX_OFFLINE=true cargo test --verbose
       - name: check files
