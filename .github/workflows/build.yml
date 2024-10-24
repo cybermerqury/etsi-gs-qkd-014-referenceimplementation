@@ -28,10 +28,11 @@ jobs:
       - name: Build
         run: |
           SQLX_OFFLINE=true cargo build --locked --release
-          let version = env!("CARGO_PKG_VERSION");
-          echo "Package version: $version"
+          VERSION1=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version')
+          VERSION2=$(cargo metadata --format-version=1 --no-deps | jq '.packages[] | select(.name == "PACKAGE_NAME") | .version')
+          echo "Package version1: $VERSION1 and version2: $VERSION2"
       - name: Run tests
-        run: SQLX_OFFLINE=true cargo test --verbose
+        run: SQLX_OFFLINE=true cargo test
       - name: check files
         run: pwd && ls
       - name: Checking docker file
