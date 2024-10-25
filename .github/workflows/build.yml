@@ -25,7 +25,7 @@ jobs:
           cargo --version
       # - name: Check for vulnerabilities
       #   run: cargo audit
-      - name: Build
+      - name: Cargo Build
         run: |
           SQLX_OFFLINE=true cargo build --locked --release
           VERSION=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version' | sed 's/"//g')
