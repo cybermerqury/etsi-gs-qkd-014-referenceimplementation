@@ -44,9 +44,9 @@ jobs:
       - name: Build and push image
         run: |
           echo "Package version: $VERSION"
-          docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
-          docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:latest
+          docker login --username ${{ github.actor }} --password-stdin ${{ secrets.IMAGE_SEC }} ghcr.io
+          docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:${VERSION}
+          docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:${VERSION}
 # Think about how we need to push tagging
 # If we want automatic tagging
 # Else we trigger it on the git tag push origin
