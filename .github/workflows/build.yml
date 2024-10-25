@@ -44,7 +44,7 @@ jobs:
       - name: Build and push image
         run: |
           echo "Package version: $VERSION"
-          docker login --username ${{ github.actor }} --password-stdin ${{ secrets.GITHUB_TOKEN }} ghcr.io
+          docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:${VERSION}
           docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:${VERSION}
 # Think about how we need to push tagging
