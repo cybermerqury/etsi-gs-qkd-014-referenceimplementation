@@ -20,7 +20,7 @@ jobs:
       - name: Check cargo version
         run: | 
           curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
-          cargo install cargo-audit
+          cargo install cargo-audit --locked
           cargo --version
       - name: Check for vulnerabilities
         run: cargo audit
@@ -40,7 +40,7 @@ jobs:
       - name: Check cargo version
         run: | 
           curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
-          cargo install cargo-audit
+          cargo install cargo-audit --locked
           cargo --version
       - name: Check for vulnerabilities
         run: cargo audit
