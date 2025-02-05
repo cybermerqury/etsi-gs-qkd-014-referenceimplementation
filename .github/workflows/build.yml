@@ -1,22 +1,64 @@
 name: Build
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
+    types: [opened, reopened]
+
+permissions:
+  packages: write
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/develop'
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: SQLX_OFFLINE=true cargo build --verbose
-    - name: Run tests
-      run: SQLX_OFFLINE=true cargo test --verbose
+      - uses: actions/checkout@v4
+      - name: Check cargo version
+        run: | 
+          curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
+          cargo install cargo-audit --locked
+          cargo --version
+      # - name: Check for vulnerabilities
+      #   run: cargo audit
+      - name: Cargo Build
+        run: SQLX_OFFLINE=true cargo build --locked --release
+      - name: Run tests
+        run: SQLX_OFFLINE=true cargo test
+      - name: check files
+        run: pwd && ls
+      - name: Checking docker file
+        run: docker build --check . --file Dockerfile
+  build_main:
+    runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check cargo version
+        run: | 
+          curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
+          cargo install cargo-audit --locked
+          cargo --version
+      # - name: Check for vulnerabilities
+      #   run: cargo audit
+      - name: Cargo Build
+        run: |
+          SQLX_OFFLINE=true cargo build --locked --release
+          VERSION=$(cargo metadata --format-version=1 --no-deps | jq '.packages[0].version' | sed 's/"//g')
+          echo "Package version: $VERSION"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+      - name: Run tests
+        run: SQLX_OFFLINE=true cargo test
+      - name: check files
+        run: pwd && ls
+      - name: Checking docker file
+        run: docker build --check . --file Dockerfile
+      - name: Build and push image
+        run: |
+          echo "Package version: $VERSION"
+          docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+          docker build . --tag ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:${VERSION}
+          docker push ghcr.io/cybermerqury/etsi_gs_qkd_014_referenceimplementation:${VERSION}
