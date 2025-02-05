@@ -60,7 +60,7 @@ sqlx --version
 ```
 The output should be similar to
 ```
-sqlx-cli 0.7.4
+sqlx-cli 0.8.2
 ```
 
 ## Docker Compose
