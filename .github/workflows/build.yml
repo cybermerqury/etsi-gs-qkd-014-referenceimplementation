@@ -17,7 +17,7 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
-      - name: Check cargo version
+      - name: Install cargo and check version
         run: | 
           curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
           cargo install cargo-audit --locked
@@ -37,7 +37,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-      - name: Check cargo version
+      - name: Install cargo and check version
         run: | 
           curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
           cargo install cargo-audit --locked
