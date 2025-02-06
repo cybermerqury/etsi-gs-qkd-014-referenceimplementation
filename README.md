@@ -1,8 +1,8 @@
 ![build workflow](https://github.com/cybermerqury/etsi-gs-qkd-014-referenceimplementation/actions/workflows/build.yml/badge.svg)
 
-# ETSI GS QKD 014 - Reference Implementation
+# ETSI GS QKD 014 v1.1.1 - Reference Implementation
 
-- [ETSI GS QKD 014 - Reference Implementation](#etsi-gs-qkd-014---reference-implementation)
+- [ETSI GS QKD 014 v1.1.1 - Reference Implementation](#etsi-gs-qkd-014-v111---reference-implementation)
   - [Description](#description)
   - [Installation](#installation)
     - [Reference OS](#reference-os)
@@ -69,7 +69,7 @@ The implementation has been developed in Rust and requires the rust toolchain to
 The installation script can then be downloaded and executed using the command:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.80.1 -y
 ```
 
 Follow the on-screen instructions to install rust.
@@ -97,33 +97,10 @@ The output should be similar to:
 sqlx-cli 0.8.2
 ```
 
-### Docker Compose
+### Docker
 
-The implementation runs on docker compose. To install docker compose run the command:
-
-```bash
-sudo apt install docker-compose-v2
-```
-
-You may need to add your user to the docker group, to do so run:
-
-```bash
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-To verify the installation was successful, run:
-
-```bash
-docker run hello-world
-```
-
-You should see the output:
-
-```text
-Hello from Docker!
-```
+The repository make use of docker.
+Kindly install docker by following the [official documentation](https://docs.docker.com/engine/install/ubuntu/).
 
 ## Environment setup
 
