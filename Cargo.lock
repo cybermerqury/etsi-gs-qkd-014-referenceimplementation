@@ -635,7 +635,7 @@ dependencies = [
 
 [[package]]
 name = "etsi_gs_qkd_014_referenceimplementation"
-version = "1.1.0"
+version = "1.1.1"
 dependencies = [
  "actix-tls",
  "actix-web",
