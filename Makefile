@@ -67,7 +67,7 @@ get_dec_key:
 	@if [ -z "$(KEY)" ]; then \
 		echo "Please set the KEY variable to a valid key UUID."; \
 		echo "Example: "; \
-		echo "> KEY="cae8af25-c1a6-4ed9-aff4-b48390665001" make get_dec_key"; \
+		echo "> make get_dec_key KEY='cae8af25-c1a6-4ed9-aff4-b48390665001'"; \
 		echo; \
 		exit 1; \
 	fi
@@ -81,7 +81,7 @@ post_dec_key:
 	@if [ -z "$(KEYS)" ]; then \
 		echo "Please set the KEYS variable to valid key UUID/s."; \
 		echo "Example: "; \
-		echo "> KEYS=\"9738c6d2-8e1c-4bc7-b4aa-f8880abf2cb8 6dfc12b0-0ca8-4e28-8f5c-89168426c76a\" make get_dec_key"; \
+		echo "> make get_dec_key KEYS='9738c6d2-8e1c-4bc7-b4aa-f8880abf2cb8 6dfc12b0-0ca8-4e28-8f5c-89168426c76a'"; \
 		echo; \
 		exit 1; \
 	fi
