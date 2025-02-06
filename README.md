@@ -1,16 +1,42 @@
 ![build workflow](https://github.com/cybermerqury/etsi-gs-qkd-014-referenceimplementation/actions/workflows/build.yml/badge.svg)
 
-# Description
+# ETSI GS QKD 014 - Reference Implementation
+
+- [ETSI GS QKD 014 - Reference Implementation](#etsi-gs-qkd-014---reference-implementation)
+  - [Description](#description)
+  - [Installation](#installation)
+    - [Reference OS](#reference-os)
+    - [Required OS packages](#required-os-packages)
+    - [Rust](#rust)
+    - [Database management packages](#database-management-packages)
+    - [Docker Compose](#docker-compose)
+  - [Environment setup](#environment-setup)
+  - [ETSI QKD 014 Standard](#etsi-qkd-014-standard)
+    - [Secure Application Entity (SAE)](#secure-application-entity-sae)
+    - [Key Management Entity (KME)](#key-management-entity-kme)
+  - [Certificates](#certificates)
+    - [Generate a self-signed certificate](#generate-a-self-signed-certificate)
+    - [Certificate generation](#certificate-generation)
+      - [Root CA](#root-ca)
+      - [KME Certificate](#kme-certificate)
+      - [SAE Certificate](#sae-certificate)
+    - [Utilities](#utilities)
+- [Environment variables](#environment-variables)
+- [Examples](#examples)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
+## Description
 
 This project provides a reference implementation to the
 [ETSI GS QKD 014 v1.1.1](https://www.etsi.org/deliver/etsi_gs/QKD/001_099/014/01.01.01_60/gs_QKD014v010101p.pdf)
 standard.
 
-# Installation
+## Installation
 
-## Reference OS
+### Reference OS
 
-```
+```text
 Ubuntu 22.04.1 LTS
 ```
 
@@ -20,106 +46,100 @@ guarantees are made that it works on other OSs.
 If you encounter issues deploying this implementation on another OS, reach out
 and we will try our best to make it work on your setup.
 
-## Required OS packages
+### Required OS packages
 
 The server requires the following packages to be installed:
-* build-essential
-* pkg-config
-* libssl-dev
 
-On Ubuntu, these can be installed using
+- build-essential
+- curl
+- libssl-dev
+- moreutils
+- pkg-config
+
+On Ubuntu, these can be installed using:
+
 ```bash
-sudo apt install build-essential pkg-config libssl-dev
+sudo apt install build-essential curl libssl-dev moreutils pkg-config
 ```
 
-## Rust
+### Rust
+
 The implementation has been developed in Rust and requires the rust toolchain to be installed. This is typically done using an installation script downloaded with curl.
 
-If curl is not already installed, run the command
-```bash
-sudo apt install curl
-```
-The installation script can then be downloaded and executed using the command
+The installation script can then be downloaded and executed using the command:
+
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
+
 Follow the on-screen instructions to install rust.
 
-## Database management packages
+### Database management packages
 
 The [SQLx](https://docs.rs/sqlx/latest/sqlx/) rust library is used to handle database
 operations, including migrations.
 
-To install the SQLx command line interface, run the command
+To install the SQLx command line interface, run the command:
+
 ```bash
 cargo install sqlx-cli --no-default-features --features rustls,postgres
 ```
-To confirm that installation was successful, run the command
+
+To confirm that installation was successful, run the command:
+
 ```bash
 sqlx --version
 ```
-The output should be similar to
-```
+
+The output should be similar to:
+
+```text
 sqlx-cli 0.8.2
 ```
 
-## Docker Compose
-The implementation runs on docker compose. To install docker compose run the command
+### Docker Compose
+
+The implementation runs on docker compose. To install docker compose run the command:
+
 ```bash
 sudo apt install docker-compose-v2
 ```
 
-To verify the installation was successful, run
-```bash
-docker run hello-world
-```
+You may need to add your user to the docker group, to do so run:
 
-You should see the output:
-```
-Hello from Docker!
-```
-
-You may need to add your user to the docker group and start the docker service, to do so run
 ```bash
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
 ```
-This will add your user to the docker group.
+
+To verify the installation was successful, run:
 
 ```bash
-sudo systemctl start docker
+docker run hello-world
 ```
-This will start the docker service. Note, if the docker service was already running, you may need to run
-```bash
-sudo systemctl restart docker
+
+You should see the output:
+
+```text
+Hello from Docker!
 ```
-for the group changes to take effect.
 
-# Set up
+## Environment setup
 
-## Start database
-
-Run
-
-```bash
-make db_start
-```
-This will create and launch a docker container running a postgres database running at `DATABASE_URL`.
-
-## SQLx migrations
-
-To run the diesel migration SQL scripts and set-up the database, run the
-following command:
+Set up your environment by executing the following:
 
 ```bash
-make db_migration
+make setup
 ```
 
-This command will execute the `up.sql` scripts in the `migrations` folder that
-have not yet been executed on the database.
+This will:
 
-# ETSI QKD 014 Standard
+- Create the necessary [certificates](#certificates),
+- Create and start a PostreSQL database container, and
+- Execute the database migration script.
+
+## ETSI QKD 014 Standard
 
 The ETSI QKD 014 standard requires that mutual TLS (mTLS) authentication is
 performed.
@@ -128,33 +148,35 @@ Most commonly, only the server's certificate is authenticated by the client,
 with the server doing no such authentication.
 Due to the sensitivity of the application, mTLS is required.
 
-## Secure Application Entity (SAE)
+### Secure Application Entity (SAE)
 
 The SAE, is referred to the client, because it is the entity that will be
 issuing the requests.
 
-## Key Management Entity (KME)
+### Key Management Entity (KME)
 
 The KME, is the application that this server aims to emulate.
 It will be referred to as the server.
 
-# Certificates
+## Certificates
 
 A root CA will be generated and used to sign both the SAE (client) and KME
 (server) certificates.
 This is to emulate a certificate that is signed by a trusted Certificate
 Authority (CA).
 
-## Generate a self-signed certificate
+### Generate a self-signed certificate
 
 The generation of a certificate involves the
-* Generation of a private key,
-* Generation of a certificate signing request, and
-* Signing of the certificate.
+
+- Generation of a private key,
+- Generation of a certificate signing request, and
+- Signing of the certificate.
 
 The generation of a private key and self-signed certificate can be done using a
 single command.
 The `nodes` option is set such that the private key is not passphrase protected.
+
 ```bash
 openssl req -x509           \
     -newkey rsa:4096        \
@@ -166,23 +188,20 @@ openssl req -x509           \
     -addext "subjectAltName=IP:127.0.0.1"
 ```
 
-## Certificate generation
+### Certificate generation
 
 All the below commands are part of the included `makefile` in the `certs`
 directory.
-Certificates can be generated by issuing the command
+Certificates can be generated by issuing the command:
+
 ```bash
 make certs
 ```
 
-Note: the makefile uses the 'ts' command which is a part of the moreutils package. To install this command run
-```bash
-sudo apt install moreutils
-```
-
-### Root CA
+#### Root CA
 
 Generate a password protected root certificate.
+
 ```bash
 openssl req -x509                                            \
     -newkey rsa:4096                                         \
@@ -192,9 +211,10 @@ openssl req -x509                                            \
     -out root.crt
 ```
 
-### KME Certificate
+#### KME Certificate
 
 Generate the KME private key and a Certificate Signing Request (CSR).
+
 ```bash
 openssl req                                          \
     -newkey rsa:4096                                 \
@@ -205,12 +225,14 @@ openssl req                                          \
     -out kme.csr
 ```
 
-Create an extensions file to specify the alternative names
+Create an extensions file to specify the alternative names:
+
 ```bash
 echo "subjectAltName = IP:127.0.0.1" >> kme.ext
 ```
 
-Sign the certificate using the root CA's key
+Sign the certificate using the root CA's key:
+
 ```bash
 openssl x509 -req    \
     -in kme.csr      \
@@ -222,9 +244,10 @@ openssl x509 -req    \
     -out kme.crt
 ```
 
-### SAE Certificate
+#### SAE Certificate
 
 Generate the sae private key and a Certificate Signing Request (CSR).
+
 ```bash
 openssl req                                              \
     -newkey rsa:4096                                     \
@@ -234,12 +257,15 @@ openssl req                                              \
     -keyout sae.key                                      \
     -out sae.csr
 ```
+
 Create an extensions file to specify the alternative names
+
 ```bash
 echo "subjectAltName = IP:127.0.0.1" >> sae.ext
 ```
 
 Sign the certificate using the root CA's key
+
 ```bash
 openssl x509 -req    \
     -in sae.csr      \
@@ -250,24 +276,29 @@ openssl x509 -req    \
     -extfile sae.ext \
     -out sae.crt
 ```
-## Utilities
 
-To view the private key contents
+### Utilities
+
+To view the private key contents:
+
 ```bash
 openssl pkey -in test.key -text -noout
 ```
 
-To extract the public key from the private key
+To extract the public key from the private key:
+
 ```bash
 openssl pkey -in test.key -pubout -out server-public.key
 ```
 
-To view the Certificate Signing Request (CSR) contents
+To view the Certificate Signing Request (CSR) contents:
+
 ```bash
 openssl req -text -in test.csr -noout
 ```
 
-To examine the certificate
+To examine the certificate:
+
 ```bash
 openssl x509 -text -in test.crt -noout
 ```
@@ -284,14 +315,14 @@ openssl x509 -text -in test.crt -noout
 |ETSI_014_REF_IMPL_TLS_CER            | TLS certificate (public key).         |
 |ETSI_014_REF_IMPL_NUM_WORKER_THREADS | Number of threads the server will use.|
 
+Refer to [.env](.env) file for more details.
+
 # Examples
 
 The `examples` folder contains multiple bash scripts that show the user how to
 launch and interact with the reference implementation.
 The `enc_keys.sh` and `dec_keys.sh` scripts send requests using `curl` to the
 web service.
-The `run_server.sh` script launches a server instance with the required
-environment variables.
 
 The Makefile allows the user to run these scripts in a coordinated way.
 
@@ -299,11 +330,12 @@ The Makefile allows the user to run these scripts in a coordinated way.
 make run_server
 ```
 
-Runs the server using the same database created with `make db_start`.
+Runs the server using the same database created with `make setup`.
 
 ```bash
 make get_enc_key
 ```
+
 Retrieves an encryption key.
 
 ```bash
@@ -313,7 +345,7 @@ make post_enc_key
 Retrieves 3 encryption keys.
 
 ```bash
-make get_dec_key KEY=XXX
+make get_dec_key KEY='XXX'
 ```
 
 Retrieves the decryption key with key-id `XXX`.
