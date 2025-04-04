@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
             .service(handlers::dec_keys::post)
     })
     .on_connect(ops::server::add_cert_info_to_request_body)
-    .workers(2)
+    .workers(CONFIG.num_workers.into())
     .bind_openssl((CONFIG.ip_addr.clone(), CONFIG.port_num), tls_config)?
     .run()
     .await
