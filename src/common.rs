@@ -5,4 +5,5 @@ use actix_web::HttpResponse;
 
 use crate::error::Error;
 
+pub type ServiceResult<T> = Result<T, Error>;
 pub type CustomResult = Result<HttpResponse, Error>;
