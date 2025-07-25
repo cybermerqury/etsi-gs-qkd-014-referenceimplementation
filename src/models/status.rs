@@ -34,7 +34,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn validate_status() {
+    fn status_response_matches_spec() {
         let status = Status {
             source_kme_id: "AAAABBBBCCCCDDDD".to_string(),
             target_kme_id: "EEEEFFFFGGGGHHHH".to_string(),

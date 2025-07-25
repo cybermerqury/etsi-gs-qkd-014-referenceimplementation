@@ -41,7 +41,7 @@ mod tests {
     }
 
     #[test]
-    fn key_response() {
+    fn key_response_matches_spec() {
         let data = r#"
             {
             "keys": [
