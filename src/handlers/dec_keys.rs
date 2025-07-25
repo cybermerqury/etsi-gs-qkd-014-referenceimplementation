@@ -2,17 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 use crate::{
-    common::CustomResult, converter, error::Error,
-    models::connection_info::ConnectionInfo, ops::key::get_multiple_keys,
+    common::ServiceResult, converter, error::Error,
+    models::{connection_info::ConnectionInfo, key::KeyResponse}, ops::key::get_multiple_keys,
 };
 use actix_web::{
-    get, post,
-    web::{self, Query},
-    HttpRequest, HttpResponse, Responder,
+   get, post, web::{self, Query}, HttpRequest, HttpResponse, Responder
 };
 use log::error;
 use serde::Deserialize;
-use serde_json::json;
 
 #[derive(Deserialize, Debug)]
 pub struct RequestParams {
@@ -26,11 +23,13 @@ pub struct RequestParamsElement {
     key_id: String,
 }
 
+type QueryParams = RequestParamsElement;
+
 #[get("/api/v1/keys/{master_sae_id}/dec_keys")]
 pub async fn get(
     request: HttpRequest,
     master_sae_id: web::Path<String>,
-    request_params: Query<RequestParamsElement>,
+    request_params: Query<QueryParams>,
 ) -> impl Responder {
     service_request(
         &request,
@@ -40,6 +39,7 @@ pub async fn get(
         master_sae_id.to_string(),
     )
     .await
+    .map(|response| HttpResponse::Ok().json(response))
 }
 
 #[post("/api/v1/keys/{master_sae_id}/dec_keys")]
@@ -57,13 +57,14 @@ pub async fn post(
     };
 
     service_request(&request, &params, master_sae_id.to_string()).await
+        .map(|response| HttpResponse::Ok().json(response))
 }
 
 async fn service_request(
     request: &HttpRequest,
     params: &RequestParams,
     master_sae_id: String,
-) -> CustomResult {
+) -> ServiceResult<KeyResponse> {
     let requested_key_ids = validate_and_parse_parameters(params)?;
     let slave_sae_id = &ConnectionInfo::new(request)?.sae_id;
 
@@ -73,7 +74,7 @@ async fn service_request(
         get_multiple_keys(&requested_key_ids, &master_sae_id, slave_sae_id)
             .await?;
 
-    Ok(HttpResponse::Ok().json(json!({ "keys": keys })))
+    Ok(KeyResponse { keys } )
 }
 
 fn validate_and_parse_parameters(
