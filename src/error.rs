@@ -3,7 +3,7 @@
 
 use actix_web::{error, http::StatusCode, HttpResponse};
 use serde_json::json;
-use std::fmt;
+use std::fmt::{self, Display};
 
 #[derive(Debug)]
 pub struct Error {
@@ -64,5 +64,75 @@ impl error::ResponseError for Error {
 
     fn status_code(&self) -> StatusCode {
         self.status_code
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum ServerError {
+    MissingData(&'static str),
+    Rustls(rustls::Error),
+    RustlsClientVerifier(rustls::client::VerifierBuilderError),
+    X509(x509_parser::error::X509Error),
+    X509Parsing(x509_parser::nom::Err<x509_parser::prelude::X509Error>),
+    VerificationFailed(String),
+}
+
+impl From<rustls::Error> for ServerError {
+    fn from(value: rustls::Error) -> Self {
+        Self::Rustls(value)
+    }
+}
+
+impl From<rustls::client::VerifierBuilderError> for ServerError {
+    fn from(value: rustls::client::VerifierBuilderError) -> Self {
+        Self::RustlsClientVerifier(value)
+    }
+}
+
+impl From<x509_parser::error::X509Error> for ServerError {
+    fn from(value: x509_parser::error::X509Error) -> Self {
+        Self::X509(value)
+    }
+}
+
+impl From<x509_parser::nom::Err<x509_parser::prelude::X509Error>>
+    for ServerError
+{
+    fn from(
+        value: x509_parser::nom::Err<x509_parser::prelude::X509Error>,
+    ) -> Self {
+        Self::X509Parsing(value)
+    }
+}
+
+impl Display for ServerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::MissingData(msg) => write!(f, "Missing data or file: {msg}"),
+            Self::Rustls(e) => {
+                write!(f, "TLS error during server config or general use: {e}")
+            }
+            Self::RustlsClientVerifier(e) => {
+                write!(f, "TLS error at client cert verifier: {e}")
+            }
+            Self::X509(e) => write!(f, "X509 parsing error. Error: {e}"),
+            Self::X509Parsing(e) => write!(f, "X509 parsing error. Error: {e}"),
+            Self::VerificationFailed(e) => {
+                write!(f, "Verification failed: {e}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for ServerError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::MissingData(_) => None,
+            Self::Rustls(e) => Some(e),
+            Self::RustlsClientVerifier(e) => Some(e),
+            Self::X509(e) => Some(e),
+            Self::X509Parsing(e) => Some(e),
+            Self::VerificationFailed(_) => None,
+        }
     }
 }

@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 use crate::{
-    common::ServiceResult, converter, error::Error,
-    models::{connection_info::ConnectionInfo, key::KeyResponse}, ops::key::get_multiple_keys,
+    common::ServiceResult,
+    converter,
+    error::Error,
+    models::{connection_info::ConnectionInfo, key::KeyResponse},
+    ops::key::get_multiple_keys,
 };
 use actix_web::{
-   get, post, web::{self, Query}, HttpRequest, HttpResponse, Responder
+    get, post,
+    web::{self, Query},
+    HttpRequest, HttpResponse, Responder,
 };
 use log::error;
 use serde::Deserialize;
@@ -56,7 +61,8 @@ pub async fn post(
         }
     };
 
-    service_request(&request, &params, master_sae_id.to_string()).await
+    service_request(&request, &params, master_sae_id.to_string())
+        .await
         .map(|response| HttpResponse::Ok().json(response))
 }
 
@@ -66,7 +72,8 @@ async fn service_request(
     master_sae_id: String,
 ) -> ServiceResult<KeyResponse> {
     let requested_key_ids = validate_and_parse_parameters(params)?;
-    let slave_sae_id = &ConnectionInfo::new(request)?.sae_id;
+    let slave_sae_id =
+        &ConnectionInfo::try_from_request(request)?.sae_id.clone();
 
     validate_sae_ids(&master_sae_id, slave_sae_id)?;
 
@@ -74,7 +81,7 @@ async fn service_request(
         get_multiple_keys(&requested_key_ids, &master_sae_id, slave_sae_id)
             .await?;
 
-    Ok(KeyResponse { keys } )
+    Ok(KeyResponse { keys })
 }
 
 fn validate_and_parse_parameters(

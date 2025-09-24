@@ -11,8 +11,12 @@ use serde::Deserialize;
 use std::collections::HashSet;
 
 use crate::{
-    common::ServiceResult, converter, default::DEFAULT, error::Error,
-    models::{connection_info::ConnectionInfo, key::KeyResponse}, ops,
+    common::ServiceResult,
+    converter,
+    default::DEFAULT,
+    error::Error,
+    models::{connection_info::ConnectionInfo, key::KeyResponse},
+    ops,
 };
 
 #[derive(Deserialize, Debug)]
@@ -41,7 +45,11 @@ pub struct QueryParams {
 
 impl From<QueryParams> for RequestParams {
     fn from(value: QueryParams) -> Self {
-        RequestParams { number: value.number, size: value.size, additional_slave_sae_ids: None }
+        RequestParams {
+            number: value.number,
+            size: value.size,
+            additional_slave_sae_ids: None,
+        }
     }
 }
 
@@ -50,21 +58,24 @@ pub async fn get(
     request: HttpRequest,
     slave_sae_id: web::Path<String>,
 ) -> impl Responder {
-    let params =
-        match Query::<QueryParams>::from_query(request.query_string()) {
-            Ok(parsed_params) => parsed_params,
-            Err(e) => {
-                error!("{:?}", e);
-                return Err(Error::bad_request(
-                    "Invalid query parameters supplied.",
-                ));
-            }
-        };
+    let params = match Query::<QueryParams>::from_query(request.query_string())
+    {
+        Ok(parsed_params) => parsed_params,
+        Err(e) => {
+            error!("{:?}", e);
+            return Err(Error::bad_request(
+                "Invalid query parameters supplied.",
+            ));
+        }
+    };
 
-    service_request(&request,
-                    &params.into_inner().into(),
-                    slave_sae_id.to_string()).await
-        .map(|response| HttpResponse::Ok().json(response))
+    service_request(
+        &request,
+        &params.into_inner().into(),
+        slave_sae_id.to_string(),
+    )
+    .await
+    .map(|response| HttpResponse::Ok().json(response))
 }
 
 #[post("/api/v1/keys/{slave_sae_id}/enc_keys")]
@@ -84,7 +95,8 @@ pub async fn post(
         },
     };
 
-    service_request(&request, &params, slave_sae_id.to_string()).await
+    service_request(&request, &params, slave_sae_id.to_string())
+        .await
         .map(|response| HttpResponse::Ok().json(response))
 }
 
@@ -99,7 +111,7 @@ async fn service_request(
     ops::key::validate_key_size(key_size)?;
     ops::key::validate_num_keys(num_keys)?;
 
-    let master_sae_id = &ConnectionInfo::new(request)?.sae_id;
+    let master_sae_id = &ConnectionInfo::try_from_request(request)?.sae_id;
     let slave_sae_ids =
         validate_and_parse_slave_sae_ids(master_sae_id, &slave_sae_id, params)?;
 
@@ -107,7 +119,9 @@ async fn service_request(
 
     ops::key::save_keys(&generated_keys, master_sae_id, &slave_sae_ids).await?;
 
-    Ok(KeyResponse { keys: generated_keys })
+    Ok(KeyResponse {
+        keys: generated_keys,
+    })
 }
 
 fn validate_and_parse_slave_sae_ids(
