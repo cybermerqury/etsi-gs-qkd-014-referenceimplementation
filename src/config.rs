@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 // SPDX-License-Identifier: AGPL-3.0-only
 use log::error;
-use std::env;
+use std::{env, sync::LazyLock};
 
 static ENV_IP_ADDR: &str = "ETSI_014_REF_IMPL_IP_ADDR";
 static ENV_PORT_NUM: &str = "ETSI_014_REF_IMPL_PORT_NUM";
@@ -34,10 +34,6 @@ impl Config {
         }
     }
 
-    pub fn init(&self) {
-        // NOTE: This empty function is used to load the variables on startup.
-    }
-
     fn extract_u16_value(var_name: &str) -> u16 {
         let extracted_value = Self::extract_string_value(var_name);
 
@@ -64,9 +60,7 @@ impl Config {
     }
 }
 
-lazy_static! {
-    pub static ref CONFIG: Config = Config::new();
-}
+pub const CONFIG: LazyLock<Config> = LazyLock::new(Config::new);
 
 #[cfg(test)]
 mod tests {

@@ -13,6 +13,7 @@ pub struct ConnectionInfo {
 }
 
 impl ConnectionInfo {
+    /// Try retrieve the connection info from an HTTP request.
     pub fn try_from_request(request: &HttpRequest) -> Result<&Self, Error> {
         match request.conn_data::<Result<ConnectionInfo, ServerError>>() {
             Some(Ok(conn_info)) => Ok(conn_info),

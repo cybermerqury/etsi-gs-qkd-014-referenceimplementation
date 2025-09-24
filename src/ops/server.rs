@@ -121,7 +121,7 @@ pub fn build_tls_configuration() -> ServerConfig {
     let root_store = {
         let mut roots = RootCertStore::empty();
         let cert = CertificateDer::from_pem_file(&CONFIG.root_crt).expect(
-            "Expected a to parse and load a root certificate at the path.",
+            "Expected a to parse and load a root certificate at the given path.",
         );
 
         roots
@@ -132,12 +132,13 @@ pub fn build_tls_configuration() -> ServerConfig {
     };
 
     debug!("Loading server cert.");
-    let server_cert = CertificateDer::from_pem_file(&CONFIG.public_crt)
-        .expect("Expected to find a valid server certificate file.");
+    let server_cert = CertificateDer::from_pem_file(&CONFIG.public_crt).expect(
+        "Expected to find a valid PEM-encoded server certificate file.",
+    );
 
     debug!("Loading server key.");
     let server_key = PrivateKeyDer::from_pem_file(&CONFIG.private_key)
-        .expect("Expected to find a valid private key file.");
+        .expect("Expected to find a valid PEM-encoded private key file.");
 
     let client_verifier = WebPkiClientVerifier::builder(root_store)
         .build()

@@ -781,7 +781,6 @@ dependencies = [
  "actix-web",
  "base64 0.21.7",
  "env_logger",
- "lazy_static",
  "log",
  "pretty_assertions",
  "rand 0.8.5",

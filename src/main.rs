@@ -1,8 +1,5 @@
 // SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 // SPDX-License-Identifier: AGPL-3.0-only
-#[macro_use]
-extern crate lazy_static;
-
 mod common;
 mod config;
 mod converter;
@@ -20,7 +17,7 @@ use log::info;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
-    CONFIG.init();
+
     db::establish_connection().await.expect("Could not connect to database");
 
     info!("Server starting on {}:{}", CONFIG.ip_addr, CONFIG.port_num);
