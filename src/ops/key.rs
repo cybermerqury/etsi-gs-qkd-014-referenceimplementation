@@ -6,7 +6,7 @@ use crate::{converter, db};
 use crate::{error::Error, models::key::Key};
 use actix_web::http::StatusCode;
 use log::error;
-use rand::prelude::*;
+use rand::{rng, RngCore};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -87,7 +87,7 @@ fn generate_random_key_bytes(key_size_bits: i32) -> Result<Vec<u8>, Error> {
     };
 
     let mut key_material = vec![0; key_size_bytes];
-    thread_rng().fill_bytes(&mut key_material);
+    rng().fill_bytes(&mut key_material);
     Ok(key_material)
 }
 
