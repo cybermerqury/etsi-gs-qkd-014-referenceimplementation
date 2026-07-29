@@ -1,0 +1,60 @@
+FROM ubuntu:22.04  AS builder
+
+# The source directory for the bin files.
+ARG BIN_SRC_DIR=./target/release
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update     && \
+    apt upgrade -y && \
+    apt install -y    \
+    build-essential   \
+    curl              \
+    libpq-dev         \
+    libssl-dev        \
+    pkg-config        \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create certificates folder
+RUN mkdir -p /usr/certs
+
+# Install cargo
+
+RUN curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs \
+    | sh -s -- --default-toolchain=1.92.0 -y
+
+ENV PATH="${PATH}:/root/.cargo/bin"
+
+RUN ls -la /root/.cargo
+
+# Copy source files
+RUN mkdir -p /usr/src/etsi_gs_qkd_014_referenceimplementation
+WORKDIR /usr/src/etsi_gs_qkd_014_referenceimplementation
+
+# Mount the source code, build the code, then copy the binary to /bin.
+RUN --mount=type=bind,source=.sqlx,target=.sqlx             \
+    --mount=type=bind,source=sql,target=sql                 \
+    --mount=type=bind,source=src,target=src                 \
+    --mount=type=bind,source=Cargo.toml,target=Cargo.toml   \
+    --mount=type=bind,source=Cargo.lock,target=Cargo.lock   \
+    <<EOF
+set -e
+SQLX_OFFLINE=true cargo build --locked --release
+cp  ${BIN_SRC_DIR}/etsi_gs_qkd_014_referenceimplementation /bin/
+EOF
+
+FROM ubuntu:24.04 AS base
+
+RUN apt update     && \
+    apt upgrade -y && \
+    apt install -y    \
+    curl              \
+    iputils-ping      \
+    libpq-dev         \
+    libssl-dev        \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /bin/
+COPY --from=builder /bin/etsi_gs_qkd_014_referenceimplementation ./
+
+ENTRYPOINT [ "/bin/etsi_gs_qkd_014_referenceimplementation" ]
