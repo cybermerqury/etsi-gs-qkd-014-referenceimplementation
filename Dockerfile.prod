@@ -54,6 +54,8 @@ RUN apt update     && \
     libssl-dev        \
     && rm -rf /var/lib/apt/lists/*
 
+FROM base AS etsi014_ref_impl
+
 WORKDIR /bin/
 COPY --from=builder /bin/etsi_gs_qkd_014_referenceimplementation ./
 
