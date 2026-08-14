@@ -17,7 +17,7 @@ pub struct Default<'a> {
 }
 
 pub const DEFAULT: Default = Default {
-    key_size: 1024,
+    key_size: 256,
     num_keys: 1,
     max_key_count: 0,
     max_key_per_request: 0,
