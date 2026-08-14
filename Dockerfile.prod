@@ -1,4 +1,4 @@
-FROM ubuntu:22.04  AS builder
+FROM ubuntu:24.04  AS builder
 
 # The source directory for the bin files.
 ARG BIN_SRC_DIR=./target/release
