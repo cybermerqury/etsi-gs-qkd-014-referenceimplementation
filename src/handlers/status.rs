@@ -33,5 +33,6 @@ fn service_request(
         max_key_size: 0,
         min_key_size: 0,
         max_sae_id_count: 0,
+        status_extension: None,
     }))
 }

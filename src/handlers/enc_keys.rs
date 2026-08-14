@@ -8,12 +8,11 @@ use actix_web::{
 };
 use log::error;
 use serde::Deserialize;
-use serde_json::json;
 use std::collections::HashSet;
 
 use crate::{
-    common::CustomResult, converter, default::DEFAULT, error::Error,
-    models::connection_info::ConnectionInfo, ops,
+    common::ServiceResult, converter, default::DEFAULT, error::Error,
+    models::{connection_info::ConnectionInfo, key::KeyResponse}, ops,
 };
 
 #[derive(Deserialize, Debug)]
@@ -34,13 +33,25 @@ impl RequestParams {
     }
 }
 
+#[derive(Deserialize, Debug)]
+pub struct QueryParams {
+    number: Option<i32>,
+    size: Option<i32>,
+}
+
+impl From<QueryParams> for RequestParams {
+    fn from(value: QueryParams) -> Self {
+        RequestParams { number: value.number, size: value.size, additional_slave_sae_ids: None }
+    }
+}
+
 #[get("/api/v1/keys/{slave_sae_id}/enc_keys")]
 pub async fn get(
     request: HttpRequest,
     slave_sae_id: web::Path<String>,
 ) -> impl Responder {
     let params =
-        match Query::<RequestParams>::from_query(request.query_string()) {
+        match Query::<QueryParams>::from_query(request.query_string()) {
             Ok(parsed_params) => parsed_params,
             Err(e) => {
                 error!("{:?}", e);
@@ -50,7 +61,10 @@ pub async fn get(
             }
         };
 
-    service_request(&request, &params, slave_sae_id.to_string()).await
+    service_request(&request,
+                    &params.into_inner().into(),
+                    slave_sae_id.to_string()).await
+        .map(|response| HttpResponse::Ok().json(response))
 }
 
 #[post("/api/v1/keys/{slave_sae_id}/enc_keys")]
@@ -71,13 +85,14 @@ pub async fn post(
     };
 
     service_request(&request, &params, slave_sae_id.to_string()).await
+        .map(|response| HttpResponse::Ok().json(response))
 }
 
 async fn service_request(
     request: &HttpRequest,
     params: &RequestParams,
     slave_sae_id: String,
-) -> CustomResult {
+) -> ServiceResult<KeyResponse> {
     let key_size = params.size.unwrap_or(DEFAULT.key_size);
     let num_keys = params.number.unwrap_or(DEFAULT.num_keys);
 
@@ -92,7 +107,7 @@ async fn service_request(
 
     ops::key::save_keys(&generated_keys, master_sae_id, &slave_sae_ids).await?;
 
-    Ok(HttpResponse::Ok().json(json!({ "keys": generated_keys })))
+    Ok(KeyResponse { keys: generated_keys })
 }
 
 fn validate_and_parse_slave_sae_ids(

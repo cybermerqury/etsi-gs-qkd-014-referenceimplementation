@@ -25,7 +25,7 @@ if [ "$1" = "GET" ]; then
     #
     # Parameter description:
     #
-    #   key_ID: [Optional] The ID of the requested key.
+    #   key_ID: The ID of the requested key.
 
     curl                                  \
         -i                                \
@@ -48,7 +48,7 @@ elif [ "$1" = "POST" ]; then
     #
     # Parameter description:
     #
-    #   key_IDs: [Optional] A list of key_IDs to retrieve.
+    #   key_IDs: A list of key_IDs to retrieve.
     shift;
     KEYS=()
     for K in "$@"; do

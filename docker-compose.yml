@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-version: "3"
-
 services:
     key_db:
         container_name: key_store_db
