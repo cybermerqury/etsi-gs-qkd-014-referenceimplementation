@@ -3,18 +3,24 @@
 
 use actix_web::HttpRequest;
 
-use crate::error::Error;
+use crate::error::{Error, ServerError};
 use log::error;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ConnectionInfo {
+    pub sans: Vec<String>,
     pub sae_id: String,
 }
 
 impl ConnectionInfo {
-    pub fn new(request: &HttpRequest) -> Result<Self, Error> {
-        match request.conn_data::<ConnectionInfo>() {
-            Some(conn_info) => Ok(conn_info.clone()),
+    /// Try retrieve the connection info from an HTTP request.
+    pub fn try_from_request(request: &HttpRequest) -> Result<&Self, Error> {
+        match request.conn_data::<Result<ConnectionInfo, ServerError>>() {
+            Some(Ok(conn_info)) => Ok(conn_info),
+            Some(Err(e)) => {
+                error!("Error retrieving peer connection info. Error: {e}");
+                Err(Error::internal_server_error())
+            }
             None => {
                 error!("Failed to extract 'sae_id' from request");
                 Err(Error::internal_server_error())

@@ -24,7 +24,9 @@ fn service_request(
     Ok(HttpResponse::Ok().json(Status {
         source_kme_id: String::from(DEFAULT.src_kme_id),
         target_kme_id: String::from(DEFAULT.dst_kme_id),
-        master_sae_id: ConnectionInfo::new(request)?.sae_id,
+        master_sae_id: ConnectionInfo::try_from_request(request)?
+            .sae_id
+            .clone(),
         slave_sae_id,
         key_size: DEFAULT.key_size,
         stored_key_count: 0,

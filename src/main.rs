@@ -1,8 +1,5 @@
 // SPDX-FileCopyrightText: © 2023 Merqury Cybersecurity Ltd <info@merqury.eu>
 // SPDX-License-Identifier: AGPL-3.0-only
-#[macro_use]
-extern crate lazy_static;
-
 mod common;
 mod config;
 mod converter;
@@ -20,17 +17,16 @@ use log::info;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
-    CONFIG.init();
+
     db::establish_connection().await.expect("Could not connect to database");
 
     info!("Server starting on {}:{}", CONFIG.ip_addr, CONFIG.port_num);
 
-    let tls_config = match ops::server::build_tls_configuration() {
-        Ok(tls_config) => tls_config,
-        Err(e) => {
-            panic!("Failed to build the tls configuration. Error: {:?}", e);
-        }
-    };
+    rustls::crypto::aws_lc_rs::default_provider().install_default().expect(
+        "Should have installed the expected crypto provider successfully.",
+    );
+
+    let tls_config = ops::server::build_tls_configuration();
 
     HttpServer::new(|| {
         App::new()
@@ -46,7 +42,7 @@ async fn main() -> std::io::Result<()> {
     })
     .on_connect(ops::server::add_cert_info_to_request_body)
     .workers(CONFIG.num_workers.into())
-    .bind_openssl((CONFIG.ip_addr.clone(), CONFIG.port_num), tls_config)?
+    .bind_rustls_0_23((CONFIG.ip_addr.clone(), CONFIG.port_num), tls_config)?
     .run()
     .await
 }
